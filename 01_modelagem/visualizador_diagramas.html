@@ -12,7 +12,7 @@
       --card: #ffffff;
       --text: #f8fafc;
       --muted: #94a3b8;
-      --accent: #2563eb;
+      --accent: #1e3a8a;
       --accent-hover: #1d4ed8;
       --border: #334155;
     }
@@ -74,6 +74,19 @@
       min-height: 360px;
     }
     .diagram-canvas svg { max-width: 100%; height: auto; }
+    #diagram-conceitual g.node g.outer-path path:first-child { fill: #1E3A8A !important; stroke: #94A3B8 !important; }
+    #diagram-conceitual g.node g.row-rect-odd path:first-child { fill: #FFFFFF !important; stroke: #CBD5E1 !important; }
+    #diagram-conceitual g.node g.row-rect-even path:first-child { fill: #F8FAFC !important; stroke: #CBD5E1 !important; }
+    #diagram-conceitual g.node g.label.name foreignObject { overflow: visible !important; }
+    #diagram-conceitual g.node g.label.name,
+    #diagram-conceitual g.node g.label.name p,
+    #diagram-conceitual g.node g.label.name span { color: #FFFFFF !important; fill: #FFFFFF !important; font-weight: 600 !important; }
+    #diagram-conceitual g.node g.label.attribute-type,
+    #diagram-conceitual g.node g.label.attribute-type p,
+    #diagram-conceitual g.node g.label.attribute-name,
+    #diagram-conceitual g.node g.label.attribute-name p { color: #0F172A !important; fill: #0F172A !important; }
+    #diagram-conceitual marker.er circle { fill: #FFFFFF !important; stroke: #334155 !important; }
+    #diagram-conceitual marker.er path { stroke: #334155 !important; }
   </style>
 </head>
 <body>
@@ -94,6 +107,7 @@
     </div>
     <div id="diagram-conceitual" class="diagram-canvas">
       <div class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': {'background': '#FFFFFF', 'primaryColor': '#1E3A8A', 'primaryTextColor': '#0F172A', 'primaryBorderColor': '#94A3B8', 'secondaryColor': '#F8FAFC', 'tertiaryColor': '#FFFFFF', 'lineColor': '#334155', 'textColor': '#0F172A', 'edgeLabelBackground': '#FFFFFF', 'fontFamily': 'Segoe UI, sans-serif'}}}%%
 erDiagram
     USUARIO {
         chave identificador
@@ -187,12 +201,12 @@ erDiagram
         logico ativa
     }
 
-    USUARIO ||--o{ AVISO : "publica"
-    USUARIO ||--o{ ACERVO : "registra"
-    USUARIO ||--o{ DOCUMENTO : "disponibiliza"
-    USUARIO ||--o{ PAGINA_INSTITUCIONAL : "edita"
-    USUARIO ||--o{ POST_TURMA : "publica"
-    USUARIO ||--o{ EVENTO : "organiza"
+    USUARIO |o--o{ AVISO : "publica"
+    USUARIO |o--o{ ACERVO : "registra"
+    USUARIO |o--o{ DOCUMENTO : "disponibiliza"
+    USUARIO |o--o{ PAGINA_INSTITUCIONAL : "edita"
+    USUARIO |o--o{ POST_TURMA : "publica"
+    USUARIO |o--o{ EVENTO : "organiza"
     AVISO ||--o{ IMAGEM_AVISO : "contem"
     ACERVO ||--o{ IMAGEM_ACERVO : "contem"
     TURMA ||--o| GRUPO_WHATSAPP : "possui"
@@ -213,6 +227,7 @@ erDiagram
     </div>
     <div id="diagram-logico" class="diagram-canvas">
       <div class="mermaid">
+%%{init: {'theme': 'base', 'themeVariables': {'background': '#FFFFFF', 'primaryColor': '#1E3A8A', 'primaryTextColor': '#0F172A', 'primaryBorderColor': '#94A3B8', 'secondaryColor': '#F8FAFC', 'tertiaryColor': '#FFFFFF', 'lineColor': '#334155', 'textColor': '#0F172A', 'edgeLabelBackground': '#FFFFFF', 'fontFamily': 'Segoe UI, sans-serif'}}}%%
 erDiagram
     escola_usuarios {
         uuid id PK
@@ -397,16 +412,7 @@ erDiagram
       startOnLoad: true,
       theme: 'base',
       securityLevel: 'loose',
-      er: { useMaxWidth: false, layoutDirection: 'TB' },
-      themeVariables: {
-        primaryColor: '#eff6ff',
-        primaryTextColor: '#0f172a',
-        primaryBorderColor: '#1d4ed8',
-        lineColor: '#334155',
-        secondaryColor: '#f8fafc',
-        tertiaryColor: '#f1f5f9',
-        fontFamily: 'Segoe UI, sans-serif'
-      }
+      er: { useMaxWidth: false, layoutDirection: 'TB' }
     });
 
     function getSvgMarkup(containerId) {

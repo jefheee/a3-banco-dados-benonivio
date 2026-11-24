@@ -94,7 +94,7 @@ def parse_dbml(dbml_text: str):
         tables[tname] = cols
 
     refs = []
-    for m in re.finditer(r"Ref:\s*(\w+)\.(\w+)\s*[>-]\s*(\w+)\.(\w+)\s*\[delete:\s*(set null|cascade|restrict)\]", dbml_text):
+    for m in re.finditer(r"Ref:\s*(\w+)\.(\w+)\s*(?:>\?|[>-])\s*(\w+)\.(\w+)\s*\[delete:\s*(set null|cascade|restrict)\]", dbml_text):
         refs.append((m.group(1), m.group(3), m.group(2), m.group(5).upper()))
 
     return enums, tables, refs
@@ -171,7 +171,10 @@ def audit():
     view_tables = []
     for tbl in doc.tables:
         hdr = [c.text.strip() for c in tbl.rows[0].cells]
-        if hdr == ["Nome", "Tipo", "Classe", "Tamanho", "Descrição", "Observação"]:
+        if hdr in (
+            ["Nome", "Tipo", "Classe", "Tam.", "Descrição", "Observação"],
+            ["Nome", "Tipo", "Classe", "Tamanho", "Descrição", "Observação"],
+        ):
             six_col_tables.append(tbl)
         elif hdr == ["Tipo ENUM (public)", "Valores Permitidos", "Tabelas que Utilizam"]:
             enum_table = tbl

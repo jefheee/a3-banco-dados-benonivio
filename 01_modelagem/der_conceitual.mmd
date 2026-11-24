@@ -1,3 +1,4 @@
+%%{init: {'theme': 'base', 'themeVariables': {'background': '#FFFFFF', 'primaryColor': '#1E3A8A', 'primaryTextColor': '#0F172A', 'primaryBorderColor': '#94A3B8', 'secondaryColor': '#F8FAFC', 'tertiaryColor': '#FFFFFF', 'lineColor': '#334155', 'textColor': '#0F172A', 'edgeLabelBackground': '#FFFFFF', 'fontFamily': 'Segoe UI, sans-serif'}}}%%
 erDiagram
     USUARIO {
         chave identificador
@@ -104,12 +105,12 @@ erDiagram
         logico ativa
     }
 
-    USUARIO ||--o{ AVISO : "publica"
-    USUARIO ||--o{ ACERVO : "registra"
-    USUARIO ||--o{ DOCUMENTO : "disponibiliza"
-    USUARIO ||--o{ PAGINA_INSTITUCIONAL : "edita"
-    USUARIO ||--o{ POST_TURMA : "publica"
-    USUARIO ||--o{ EVENTO : "organiza"
+    USUARIO |o--o{ AVISO : "publica"
+    USUARIO |o--o{ ACERVO : "registra"
+    USUARIO |o--o{ DOCUMENTO : "disponibiliza"
+    USUARIO |o--o{ PAGINA_INSTITUCIONAL : "edita"
+    USUARIO |o--o{ POST_TURMA : "publica"
+    USUARIO |o--o{ EVENTO : "organiza"
 
     AVISO ||--o{ IMAGEM_AVISO : "contem"
     ACERVO ||--o{ IMAGEM_ACERVO : "contem"

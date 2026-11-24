@@ -76,6 +76,7 @@ def add_styled_table(doc, headers, rows, col_widths_cm, font_size_pt=8.4):
         p = cell.paragraphs[0]
         p.paragraph_format.space_before = Pt(0)
         p.paragraph_format.space_after = Pt(0)
+        p.paragraph_format.keep_with_next = True
         run = p.add_run(text)
         run.bold = True
         run.font.name = "Calibri"
@@ -325,15 +326,15 @@ def build_doc():
     toc_items = [
         ("1. INTRODUÇÃO", "4"),
         ("2. OBJETIVOS E EVOLUÇÃO DO MODELO", "4"),
-        ("3. REGRAS DE NEGÓCIO E NORMALIZAÇÃO (1FN, 2FN E 3FN)", "5"),
-        ("4. DICIONÁRIO DE DADOS DAS 15 TABELAS", "6"),
-        ("5. VIEWS PÚBLICAS", "16"),
-        ("6. TIPOS ENUMERADOS (5 ENUMs)", "17"),
-        ("7. RESUMO DOS RELACIONAMENTOS (13 CHAVES ESTRANGEIRAS)", "17"),
-        ("8. DIAGRAMA CONCEITUAL", "18"),
-        ("9. DIAGRAMA LÓGICO / FÍSICO", "19"),
-        ("10. EVIDÊNCIAS DE VALIDAÇÃO EM BANCO", "20"),
-        ("11. CONSIDERAÇÕES FINAIS E REFERÊNCIAS", "21"),
+        ("3. REGRAS DE NEGÓCIO E NORMALIZAÇÃO (1FN, 2FN E 3FN)", "4"),
+        ("4. DICIONÁRIO DE DADOS DAS 15 TABELAS", "5"),
+        ("5. VIEWS PÚBLICAS", "13"),
+        ("6. TIPOS ENUMERADOS (5 ENUMs)", "14"),
+        ("7. RESUMO DOS RELACIONAMENTOS (13 CHAVES ESTRANGEIRAS)", "14"),
+        ("8. DIAGRAMA CONCEITUAL", "16"),
+        ("9. DIAGRAMA LÓGICO / FÍSICO", "17"),
+        ("10. EVIDÊNCIAS DE VALIDAÇÃO EM BANCO", "18"),
+        ("11. CONSIDERAÇÕES FINAIS E REFERÊNCIAS", "19"),
     ]
     for title_t, pg_t in toc_items:
         p = doc.add_paragraph()
@@ -407,8 +408,8 @@ def build_doc():
         "UQ = UNIQUE; UQ Comp. = UNIQUE Composta; UTC = DEFAULT timezone('utc', now())."
     )
 
-    col_w = [2.7, 2.2, 1.8, 1.3, 5.5, 3.0]
-    hdr_cols = ["Nome", "Tipo", "Classe", "Tamanho", "Descrição", "Observação"]
+    col_w = [2.8, 2.3, 2.5, 1.3, 5.2, 2.4]
+    hdr_cols = ["Nome", "Tipo", "Classe", "Tam.", "Descrição", "Observação"]
 
     tables_spec = [
         (
@@ -818,21 +819,21 @@ def build_doc():
         doc,
         ["Tabela Origem", "Tabela Destino", "Coluna (FK)", "Cardinalidade", "Política ON DELETE"],
         [
-            ["escola_avisos", "escola_usuarios", "autor_id → id", "N:1 (Opcional)", "SET NULL"],
-            ["escola_acervo", "escola_usuarios", "autor_id → id", "N:1 (Opcional)", "SET NULL"],
-            ["escola_documentos", "escola_usuarios", "autor_id → id", "N:1 (Opcional)", "SET NULL"],
-            ["escola_conteudo_paginas", "escola_usuarios", "autor_id → id", "N:1 (Opcional)", "SET NULL"],
-            ["escola_turmas_posts", "escola_usuarios", "autor_id → id", "N:1 (Opcional)", "SET NULL"],
-            ["escola_eventos", "escola_usuarios", "autor_id → id", "N:1 (Opcional)", "SET NULL"],
-            ["escola_avisos_imagens", "escola_avisos", "aviso_id → id", "1:N (Composição)", "CASCADE"],
-            ["escola_acervo_imagens", "escola_acervo", "acervo_id → id", "1:N (Composição)", "CASCADE"],
-            ["escola_turmas_links", "escola_turmas", "turma_id → id", "1:N (Composição)", "CASCADE"],
-            ["escola_turmas_posts", "escola_turmas", "turma_id → id", "1:N (Composição)", "CASCADE"],
+            ["escola_avisos", "escola_usuarios", "autor_id → id", "N:0..1 (Opcional)", "SET NULL"],
+            ["escola_acervo", "escola_usuarios", "autor_id → id", "N:0..1 (Opcional)", "SET NULL"],
+            ["escola_documentos", "escola_usuarios", "autor_id → id", "N:0..1 (Opcional)", "SET NULL"],
+            ["escola_conteudo_paginas", "escola_usuarios", "autor_id → id", "N:0..1 (Opcional)", "SET NULL"],
+            ["escola_turmas_posts", "escola_usuarios", "autor_id → id", "N:0..1 (Opcional)", "SET NULL"],
+            ["escola_eventos", "escola_usuarios", "autor_id → id", "N:0..1 (Opcional)", "SET NULL"],
+            ["escola_avisos_imagens", "escola_avisos", "aviso_id → id", "N:1 (Composição)", "CASCADE"],
+            ["escola_acervo_imagens", "escola_acervo", "acervo_id → id", "N:1 (Composição)", "CASCADE"],
+            ["escola_turmas_links", "escola_turmas", "turma_id → id", "N:1 (Composição)", "CASCADE"],
+            ["escola_turmas_posts", "escola_turmas", "turma_id → id", "N:1 (Composição)", "CASCADE"],
             ["escola_whatsapp_grupos", "escola_turmas", "turma_id → id", "1:1 (UNIQUE)", "CASCADE"],
-            ["escola_turmas_eventos", "escola_eventos", "evento_id → id", "N:N (Associativa)", "CASCADE"],
-            ["escola_turmas_eventos", "escola_turmas", "turma_id → id", "N:N (Associativa)", "CASCADE"],
+            ["escola_turmas_eventos", "escola_eventos", "evento_id → id", "N:1 (Associativa N:N)", "CASCADE"],
+            ["escola_turmas_eventos", "escola_turmas", "turma_id → id", "N:1 (Associativa N:N)", "CASCADE"],
         ],
-        [4.2, 3.6, 3.0, 3.1, 2.6],
+        [4.2, 3.6, 3.0, 3.3, 2.4],
         font_size_pt=8.6,
     )
 

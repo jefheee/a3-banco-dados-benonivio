@@ -328,12 +328,12 @@ Table escola_refeicoes {
 // ----------------------------------------------------------------------------
 
 // Autoria (ON DELETE SET NULL — preserva historico institucional)
-Ref: escola_avisos.autor_id > escola_usuarios.id [delete: set null]
-Ref: escola_acervo.autor_id > escola_usuarios.id [delete: set null]
-Ref: escola_documentos.autor_id > escola_usuarios.id [delete: set null]
-Ref: escola_conteudo_paginas.autor_id > escola_usuarios.id [delete: set null]
-Ref: escola_turmas_posts.autor_id > escola_usuarios.id [delete: set null]
-Ref: escola_eventos.autor_id > escola_usuarios.id [delete: set null]
+Ref: escola_avisos.autor_id >? escola_usuarios.id [delete: set null]
+Ref: escola_acervo.autor_id >? escola_usuarios.id [delete: set null]
+Ref: escola_documentos.autor_id >? escola_usuarios.id [delete: set null]
+Ref: escola_conteudo_paginas.autor_id >? escola_usuarios.id [delete: set null]
+Ref: escola_turmas_posts.autor_id >? escola_usuarios.id [delete: set null]
+Ref: escola_eventos.autor_id >? escola_usuarios.id [delete: set null]
 
 // Composicao 1:N e 1:1 (ON DELETE CASCADE)
 Ref: escola_avisos_imagens.aviso_id > escola_avisos.id [delete: cascade]

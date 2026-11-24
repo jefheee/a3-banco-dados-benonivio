@@ -227,7 +227,7 @@ def build_deck():
             ["Relacionamentos", "Sem política ON DELETE padrão", "13 FKs (CASCADE vs. SET NULL)"],
             ["Integridade", "Concentrada apenas no frontend", "CHECKs de data, slug, e-mail e texto"],
             ["Exposição Pública", "Leitura direta sem filtro central", "2 Views (WITH security_invoker = true)"],
-            ["Segurança (RLS)", "USING (true) expondo rascunhos", "70 políticas granulares por operação"],
+            ["Segurança (RLS)", "Políticas heterogêneas sem controle por papel (role)", "70 políticas granulares por operação"],
         ],
         [2.6, 4.4, 5.13],
         font_size=13.5,
@@ -519,7 +519,7 @@ def build_deck():
     pff = tbf.text_frame.paragraphs[0]
     pff.alignment = PP_ALIGN.CENTER
     pff.space_after = Pt(4)
-    put_run(pff, "Obrigado!  •  Daniel Alves, Gabriel Grando, Jefherson Luiz e Maicon Lodetti", size=15, color=RGBColor(0x93, 0xC5, 0xFD), bold=True)
+    put_run(pff, "Obrigado! | Daniel Alves, Gabriel Grando, Jefherson Luiz e Maicon Lodetti", size=15, color=RGBColor(0x93, 0xC5, 0xFD), bold=True)
     pff2 = tbf.text_frame.add_paragraph()
     pff2.alignment = PP_ALIGN.CENTER
     put_run(pff2, "Professores: Fernando Costa Leite e Henrique Pereira Oliveira D'Eça Neves  •  UNISUL 2026", size=13, color=RGBColor(0xCB, 0xD5, 0xE1))

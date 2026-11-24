@@ -1,0 +1,47 @@
+g.node g.outer-path path:first-child {
+  fill: #1E3A8A !important;
+  stroke: #94A3B8 !important;
+}
+
+g.node g.row-rect-odd path:first-child {
+  fill: #FFFFFF !important;
+  stroke: #CBD5E1 !important;
+}
+
+g.node g.row-rect-even path:first-child {
+  fill: #F8FAFC !important;
+  stroke: #CBD5E1 !important;
+}
+
+g.node g.label.name foreignObject {
+  overflow: visible !important;
+}
+
+g.node g.label.name,
+g.node g.label.name p,
+g.node g.label.name span {
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+  font-weight: 600 !important;
+}
+
+g.node g.label.attribute-type,
+g.node g.label.attribute-type p,
+g.node g.label.attribute-name,
+g.node g.label.attribute-name p,
+g.node g.label.attribute-keys,
+g.node g.label.attribute-keys p,
+g.node g.label.attribute-comment,
+g.node g.label.attribute-comment p {
+  color: #0F172A !important;
+  fill: #0F172A !important;
+}
+
+marker.er circle {
+  fill: #FFFFFF !important;
+  stroke: #334155 !important;
+}
+
+marker.er path {
+  stroke: #334155 !important;
+}
