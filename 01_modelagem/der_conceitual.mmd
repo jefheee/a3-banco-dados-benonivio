@@ -1,112 +1,107 @@
 erDiagram
     USUARIO {
         chave identificador
-        atributo nome
-        atributo email
-        atributo papel
-        atributo ativo
+        texto nome
+        texto email
+        texto papel
+        logico ativo
     }
 
     TURMA {
         chave identificador
-        atributo ano_letivo
-        atributo serie
-        atributo nome
-        atributo turno
+        numero ano_letivo
+        texto serie
+        texto nome
+        texto turno
     }
 
     GRUPO_WHATSAPP {
         chave identificador
-        atributo nome
-        atributo link_convite
-        atributo ativo
+        texto nome
+        texto link_convite
+        logico ativo
     }
 
     LINK_TURMA {
         chave identificador
-        atributo titulo
-        atributo url
-        atributo ordem
+        texto titulo
+        texto url
+        numero ordem
     }
 
     POST_TURMA {
         chave identificador
-        atributo titulo
-        atributo resumo
-        atributo status
-        atributo data_publicacao
+        texto titulo
+        texto resumo
+        texto status
     }
 
     AVISO {
         chave identificador
-        atributo titulo
-        atributo resumo
-        atributo categoria
-        atributo importancia
-        atributo status
+        texto titulo
+        texto resumo
+        texto importancia
+        texto status
     }
 
     IMAGEM_AVISO {
         chave identificador
-        atributo url
-        atributo legenda
-        atributo ordem
+        texto url
+        texto legenda
+        numero ordem
     }
 
     ACERVO {
         chave identificador
-        atributo ano
-        atributo categoria
-        atributo titulo
-        atributo status
+        texto ano
+        texto categoria
+        texto titulo
+        texto status
     }
 
     IMAGEM_ACERVO {
         chave identificador
-        atributo url
-        atributo legenda
-        atributo ordem
+        texto url
+        texto legenda
+        numero ordem
     }
 
     DOCUMENTO {
         chave identificador
-        atributo titulo
-        atributo categoria
-        atributo nome_arquivo
-        atributo tamanho_bytes
-        atributo status
+        texto titulo
+        texto categoria
+        texto nome_arquivo
+        texto status
     }
 
     PAGINA_INSTITUCIONAL {
         chave identificador
-        atributo slug
-        atributo titulo
-        atributo publicado
+        texto slug
+        texto titulo
+        logico publicado
     }
 
     EVENTO {
         chave identificador
-        atributo titulo
-        atributo local
-        atributo data_inicio
-        atributo data_fim
-        atributo status
+        texto titulo
+        texto local
+        data data_inicio
+        texto status
     }
 
     REFEICAO {
         chave identificador
-        atributo data
-        atributo turno
-        atributo descricao
-        atributo observacoes
+        data data
+        texto turno
+        texto descricao
     }
 
     NOTIFICACAO {
         chave identificador
-        atributo titulo
-        atributo mensagem
-        atributo importancia
-        atributo ativa
+        texto titulo
+        texto mensagem
+        texto importancia
+        logico ativa
     }
 
     USUARIO ||--o{ AVISO : "publica"

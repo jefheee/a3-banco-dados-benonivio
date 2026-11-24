@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Node / Ferramentas
+node_modules/
+npm-debug.log*
+
+# Ambiente e Segredos
+.env
+.env.*
+
+# Arquivos temporarios do Microsoft Office
+~$*.docx
+~$*.pptx
+~$*.xlsx
+
+# Sistema Operacional e Temporarios
+.DS_Store
+Thumbs.db
+*.tmp
+tmp_*
+slide_preview/

@@ -1,103 +1,106 @@
 # Roteiro de Apresentação — Avaliação A3 (Banco de Dados)
 
-- **Projeto:** Modelagem, Normalização e Implementação Relacional do Portal Escolar — **EEB Prof. Benonívio João Martins**
+- **Projeto:** Portal Escolar EEB Prof. Benonívio João Martins (`problemaescola vFinal` · `rbowxcvpcaqrycrvfowh`)
 - **Disciplina:** Banco de Dados — UNISUL (Campus Pedra Branca, 2026)
-- **Professor:** Henrique Pereira Oliveira D'Eça Neves
-- **Tempo Total Alvo:** ~12 minutos (divisão equilibrada: ~3 minutos por integrante)
-- **Ambiente ao Vivo:**
-  - Portal em produção (demonstração rápida): `https://escolabenonivio.vercel.app`
-  - Banco homologado da A3 (Supabase / PostgreSQL 17): projeto **`problemaescola vFinal`** (`rbowxcvpcaqrycrvfowh`)
-  - Scripts no SQL Editor: `02_sql/05_crash_test_integridade.sql` e `02_sql/06_consultas_apresentacao.sql`
+- **Professores:** Fernando Costa Leite e Henrique Pereira Oliveira D'Eça Neves
+- **Tempo Total:** ~12 minutos (~3 minutos por integrante)
 
 ---
 
-## Cronograma e Divisão de Falas
+## Checklist — 5 Minutos Antes de Apresentar
 
-| Ordem | Integrante | Tempo | Slides | Foco Principal |
-|---:|---|---:|---|---|
-| 1 | **Jefherson Luiz** | 00:00 – 03:00 (3 min) | Slides 1, 2, 3 e 6 | Abertura no portal real, diagnóstico Antes vs. Depois e arquitetura/segurança (RLS + Views) |
-| 2 | **Daniel Alves** | 03:00 – 06:00 (3 min) | Slides 4 e 5 + DOCX | Dicionário de Dados Unificado, Normalização (1FN/2FN/3FN), DER e cardinalidades (1:1, 1:N, N:N) |
-| 3 | **Maicon Lodetti** | 06:00 – 09:00 (3 min) | Slide 7 + SQL Editor | Execução ao vivo dos **Crash Tests** (`05_crash_test_integridade.sql`) |
-| 4 | **Gabriel Grando** | 09:00 – 12:00 (3 min) | Slides 8, 9 e 10 + SQL Editor | Execução ao vivo das **Consultas DQL** (`06_consultas_apresentacao.sql`), evidências e fechamento |
+1. **Aba 1 (Navegador):** Abrir `https://escolabenonivio.vercel.app` para a demonstração rápida de 30s na abertura.
+2. **Aba 2 (Supabase SQL Editor):** Deixar `05_crash_test_integridade.sql` aberto no projeto `problemaescola vFinal` (conferir a URL antes de rodar).
+3. **Aba 3 (Supabase SQL Editor):** Deixar `06_consultas_apresentacao.sql` pronto em outra aba.
+4. **Projeção:** Abrir `04_entrega_final/02_Apresentacao_A3_Portal_Escolar.pptx` (e deixar o `.pdf` como backup).
+5. **Documento de Apoio:** Ter `04_entrega_final/01_Dicionario_de_Dados_A3_EEB_Benonivio.pdf` aberto para consulta rápida na fala do Daniel.
 
 ---
 
-## Roteiro Detalhado por Integrante
+## Divisão das Falas (Cola para Celular)
 
-### 1. Jefherson Luiz — Abertura, Diagnóstico e Segurança (~3 min)
-- **Slides 1 e 2 (00:00 – 01:00):**
-  - Cumprimenta a turma e o professor Henrique.
-  - Mostra rapidamente (30 segundos) o portal real `escolabenonivio.vercel.app` no navegador: *"Esse é um sistema real que construímos para a EEB Prof. Benonívio João Martins, aqui da região. Hoje ele roda em produção, mas o banco inicial foi criado às pressas com 9 tabelas e vários arrays em JSONB."*
-- **Slide 3 — Antes vs. Depois (01:00 – 02:00):**
-  - Explica a refatoração: saímos de 9 tabelas com JSONB e sem controle histórico de ano letivo para **15 tabelas normalizadas até a 3FN**, **5 tipos ENUM**, **13 FKs explícitas**, **2 Views públicas** e **70 políticas RLS**.
-- **Slide 6 — Integridade e Segurança no SGBD (02:00 – 03:00):**
-  - Destaca que a regra de negócio foi blindada dentro do PostgreSQL: `CHECK` contra strings vazias e datas invertidas, `UNIQUE` naturais, `ON DELETE CASCADE` vs. `SET NULL`, triggers automáticas de `updated_at` e Views com `security_invoker = true` respeitando RLS.
-  - Passa a palavra para o **Daniel**: *"O Daniel vai detalhar como organizamos essas 15 entidades no Dicionário de Dados e nos diagramas."*
+### 1. Jefherson Luiz — Abertura, Diagnóstico e Segurança (00:00 – 03:00)
 
-### 2. Daniel Alves — Dicionário de Dados, Normalização e DER (~3 min)
-- **Slide 4 — Normalização na Prática (03:00 – 04:30):**
-  - **1FN:** Fim dos atributos multivalorados em JSONB — galerias de imagens viraram `escola_avisos_imagens` e `escola_acervo_imagens`; links das turmas viraram `escola_turmas_links`, todos com `ordem >= 0` e `UNIQUE (pai_id, ordem)`.
-  - **2FN:** Relacionamento N:N entre eventos e turmas resolvido pela associativa `escola_turmas_eventos` com PK composta `(evento_id, turma_id)`.
-  - **3FN:** Remoção da coluna transitiva `turno` de `escola_whatsapp_grupos` (pois o turno pertence à turma e é obtido por `JOIN`) e inclusão de `ano_letivo` em `escola_turmas` para virar o ano letivo sem sobrescrever o histórico.
-- **Slide 5 + Dicionário (`Dicionario_de_Dados_A3_FINAL.docx`) (04:30 – 06:00):**
-  - Exibe rapidamente o Dicionário de Dados (padrão de 6 colunas + restrições reais + 5 ENUMs + 13 FKs) e aponta no DER os 5 subsistemas e cardinalidades:
-    - **1:1:** `escola_turmas` ↔ `escola_whatsapp_grupos` (`turma_id` com `UNIQUE`).
-    - **1:N:** `escola_usuarios` → publicações, `escola_avisos` → imagens, `escola_turmas` → links/posts.
-    - **N:N:** `escola_eventos` ↔ `escola_turmas` via `escola_turmas_eventos`.
-  - Passa a palavra para o **Maicon**: *"Agora o Maicon vai provar ao vivo no Supabase que essas restrições realmente impedem dados inválidos."*
+- **Portal real (30s):** Mostra `escolabenonivio.vercel.app` no navegador. Explica que é um portal real da EEB Benonívio (Palhoça/SC) que rodava com 9 tabelas e vários arrays JSONB.
+- **Slide 2 e 3 (Antes vs. Depois):**
+  - Antes: JSONB sem integridade, sem `ano_letivo` nas turmas, turno repetido no WhatsApp, RLS `USING (true)` expondo rascunhos.
+  - Depois: **15 tabelas (3FN)**, **5 ENUMs**, **13 FKs**, **2 Views** e **70 políticas RLS**.
+- **Slide 6 (Segurança no SGBD):**
+  - Visitante anônimo (`anon`) só enxerga conteúdo `publicado` / `ativo` dentro da vigência.
+  - Edição restrita a operadores ativos (`escola_is_editor()` e `escola_is_admin()`).
+  - Views públicas usam `WITH (security_invoker = true)` no PostgreSQL 17.
+- **Gancho:** *"O Daniel vai mostrar como estruturamos essas 15 entidades no Dicionário e nos diagramas."*
 
-### 3. Maicon Lodetti — Crash Tests ao Vivo (~3 min)
-- **Slide 7 + Supabase SQL Editor (`02_sql/05_crash_test_integridade.sql`) (06:00 – 09:00):**
-  - Explica: *"Em vez de confiar apenas no formulário do frontend, colocamos barreiras físicas no SGBD. Vou rodar ao vivo os testes de falha intencional."*
-  - Executa 3 a 4 testes selecionados no SQL Editor (descomentando um bloco `BEGIN; ... ROLLBACK;` por vez):
-    1. **Teste 1 (`23505`):** Tentar duplicar a turma `2026 / 1º Ano Ensino Médio / 101 / matutino` → barrada por `uq_turmas_ano_letivo_serie_nome_turno`.
-    2. **Teste 3 (`23505`):** Tentar cadastrar um segundo grupo de WhatsApp para a mesma turma → barrada pela `UNIQUE` 1:1 `escola_whatsapp_grupos_turma_id_key`.
-    3. **Teste 4 (`23514`):** Tentar criar evento com `data_fim < data_inicio` → barrada por `ck_eventos_datas`.
-    4. **Teste 5c / 6 (`23514` / `23503`):** Tentar inserir `slug` com espaço/maiúscula (`ck_escola_conteudo_paginas_slug_formato`) ou post com `turma_id` inexistente (`escola_turmas_posts_turma_id_fkey`).
-  - Mostra rapidamente que os demais testes (`T2` cardápio duplicado e `T5a/b` e-mail/nome em branco) seguem o mesmo rigor.
-  - Passa a palavra para o **Gabriel**: *"Com o banco protegido contra lixo, o Gabriel vai mostrar os 102 registros populados e as consultas analíticas ao vivo."*
+---
 
-### 4. Gabriel Grando — Consultas DQL ao Vivo e Fechamento (~3 min)
-- **Slides 8 e 9 + Supabase SQL Editor (`02_sql/06_consultas_apresentacao.sql`) (09:00 – 11:30):**
-  - Destaca que o banco foi populado com **102 registros reais** em 15 tabelas (cobrindo 2025 e 2026) e **0 alertas críticos** nos Advisors.
+### 2. Daniel Alves — Normalização, Dicionário e DER (03:00 – 06:00)
+
+- **Slide 4 (1FN, 2FN, 3FN):**
+  - **1FN:** Fim do JSONB — fotos e links viraram tabelas filhas (`escola_avisos_imagens`, `escola_acervo_imagens`, `escola_turmas_links`) com `ordem >= 0` e `UNIQUE (pai_id, ordem)`.
+  - **2FN:** Eventos e turmas (N:N) ligam-se pela associativa `escola_turmas_eventos` com PK composta `(evento_id, turma_id)`.
+  - **3FN:** Tiramos `turno` de `escola_whatsapp_grupos` (vem por `JOIN` da turma) e colocamos `ano_letivo` em `escola_turmas` para preservar 2025 e 2026 sem sobrescrever nada.
+- **Slide 5 + PDF do Dicionário:**
+  - Aponta os 5 subsistemas no DER (`dbdiagram.io`) e resume as cardinalidades:
+    - **1:1:** Turma e Grupo de WhatsApp (`turma_id` `UNIQUE`).
+    - **1:N:** Usuário para publicações (`ON DELETE SET NULL`), Aviso/Acervo para imagens e Turma para links/posts (`ON DELETE CASCADE`).
+    - **N:N:** Evento para Turma via `escola_turmas_eventos`.
+- **Gancho:** *"Agora o Maicon vai provar ao vivo no Supabase que o banco barra qualquer dado inválido."*
+
+---
+
+### 3. Maicon Lodetti — Crash Tests ao Vivo (06:00 – 09:00)
+
+- **Slide 7 + SQL Editor (`05_crash_test_integridade.sql`):**
+  - Explica que cada teste roda em `BEGIN; ... ROLLBACK;` para provar a trava sem sujar o banco.
+  - Descomentar e rodar ao vivo 3 ou 4 testes:
+    1. **T1 (`23505`):** Tentar duplicar a turma `2026 / 1º Ano Ensino Médio / 101 / matutino` → `uq_turmas_ano_letivo_serie_nome_turno` bloqueia.
+    2. **T3 (`23505`):** Tentar cadastrar 2º grupo de WhatsApp para a mesma turma → `escola_whatsapp_grupos_turma_id_key` bloqueia.
+    3. **T4 (`23514`):** Tentar criar evento com `data_fim < data_inicio` → `ck_eventos_datas` bloqueia.
+    4. **T5c ou T6 (`23514` / `23503`):** Slug com espaço (`ck_escola_conteudo_paginas_slug_formato`) ou post para `turma_id` inexistente (`escola_turmas_posts_turma_id_fkey`).
+- **Gancho:** *"Com a integridade provada, o Gabriel mostra os 102 registros e as consultas analíticas ao vivo."*
+
+---
+
+### 4. Gabriel Grando — Consultas DQL ao Vivo e Fechamento (09:00 – 12:00)
+
+- **Slides 8 e 9 + SQL Editor (`06_consultas_apresentacao.sql`):**
+  - Destaca que o seed populou **102 registros** nas 15 tabelas com **0 alertas** de políticas duplicadas ou `search_path` mutável.
   - Executa ao vivo as consultas destaque:
-    - **Q1 (JOIN 3FN):** Lista turmas de `2026` trazendo o grupo de WhatsApp ativo e a contagem de links (sem coluna redundante `turno` na tabela de WhatsApp).
-    - **Q2 (`COUNT`, `SUM`, `AVG`):** Documentos por categoria com total em MB e média em KB.
-    - **Q4 (`GROUP BY` + `HAVING`):** Apenas turmas com `>= 2` links complementares (`HAVING COUNT(l.id) >= 2`).
-    - **Q5 e Q6 (`LEFT JOIN` + `COALESCE` e `NOT EXISTS`):** Mostra que a turma `2026 - 901` aparece com `0` posts publicados (sem sumir do relatório) e é localizada automaticamente pelo `NOT EXISTS` por ainda não ter grupo de WhatsApp.
-    - **Q7 e Q8 (Histórico + Views):** Compara `2025` vs. `2026` e prova que `escola_avisos_publicos` retorna `4` de `6` avisos e `escola_eventos_publicos` retorna `3` de `5` eventos (ocultando rascunhos, arquivados e expirados).
-- **Slide 10 — Próximos Passos e Encerramento (11:30 – 12:00):**
-  - Explica a etapa pós-A3: migração controlada (ETL) do banco legado em produção para esse schema 3FN e atualização das queries do Next.js (`lib/data/`).
-  - Agradece ao professor e abre para perguntas.
+    - **Q1 (JOIN 3FN):** Turmas de 2026 com grupo de WhatsApp ativo e contagem de links.
+    - **Q2 (`COUNT`, `SUM`, `AVG`):** Documentos por categoria em MB e média em KB.
+    - **Q4 (`GROUP BY` + `HAVING`):** Só turmas com 2 ou mais links (`HAVING COUNT(l.id) >= 2`).
+    - **Q5 e Q6 (`LEFT JOIN` + `COALESCE` e `NOT EXISTS`):** Mostra a turma `2026-901` aparecendo com `0` posts publicados e sendo localizada pelo `NOT EXISTS` por não ter WhatsApp.
+    - **Q7 e Q8 (Histórico + Views):** Compara `2025` vs. `2026` e prova que `escola_avisos_publicos` retorna `4` de `6` e `escola_eventos_publicos` retorna `3` de `5`.
+- **Slide 10 (Fechamento):**
+  - Próximo passo pós-A3: ETL controlado do legado para o schema 3FN e atualização das queries em `lib/data/` no Next.js.
 
 ---
 
-## Cola de Defesa — 8 Perguntas Prováveis do Professor
+## Cola de Defesa — 8 Perguntas Prováveis dos Professores
 
-1. **Qual a diferença entre DDL, DML e DQL no projeto de vocês?**
-   - **DDL** (*Data Definition Language*): `CREATE TABLE`, `ALTER TABLE`, `CREATE VIEW`, `CREATE INDEX` — define a estrutura (`00_ddl_completo_do_zero.sql` e `01_migration_ajustes_vfinal.sql`).
-   - **DML** (*Data Manipulation Language*): `INSERT`, `UPDATE`, `DELETE` — manipula os dados (`04_seed_escola_benonivio.sql`).
-   - **DQL** (*Data Query Language*): `SELECT` com `JOIN`, `GROUP BY`, `HAVING`, subconsultas — consulta e gera informação (`06_consultas_apresentacao.sql`).
+1. **Qual a diferença entre DDL, DML e DQL no projeto?**
+   - **DDL:** `CREATE TABLE`, `ALTER TABLE`, `CREATE VIEW`, `CREATE INDEX` (`00_ddl_completo_do_zero.sql`).
+   - **DML:** `INSERT`, `UPDATE`, `DELETE` (`04_seed_escola_benonivio.sql`).
+   - **DQL:** `SELECT` com `JOIN`, `GROUP BY`, `HAVING`, `NOT EXISTS` (`06_consultas_apresentacao.sql`).
 
-2. **Por que vocês tiraram o `JSONB` de imagens e links se o PostgreSQL suporta `JSONB` bem?**
-   - Porque listas de imagens e links têm **ciclo de vida próprio, ordenação (`ordem`) e exigem integridade individual** (como `NOT NULL` em `url` e `UNIQUE (pai_id, ordem)`). Armazená-las em `JSONB` viola a **1ª Forma Normal (1FN)** (atributo multivalorado), impede FKs nativas e dificulta consultas/ordenação relacionais em SQL padrão.
+2. **Por que remover JSONB de imagens e links se o PostgreSQL suporta JSONB?**
+   - Porque listas de imagens e links têm ciclo de vida próprio, ordenação (`ordem`) e exigem validação individual (`NOT NULL`, `UNIQUE (pai_id, ordem)`). Armazenar lista em JSONB viola a **1FN** e impede chaves estrangeiras nativas.
 
-3. **Qual a diferença entre `WHERE` e `HAVING` (usado na Consulta 4)?**
-   - `WHERE` filtra **linhas individuais antes** do agrupamento (`GROUP BY`).
-   - `HAVING` filtra **grupos já agregados depois** do `GROUP BY` — por isso usamos `HAVING COUNT(l.id) >= 2` para retornar só turmas com 2 ou mais links.
+3. **Qual a diferença entre `WHERE` e `HAVING`?**
+   - `WHERE` filtra linhas individuais **antes** do `GROUP BY`; `HAVING` filtra grupos agregados **depois** do `GROUP BY` (ex.: `HAVING COUNT(l.id) >= 2`).
 
-4. **Por que usaram `NOT EXISTS` na Consulta 6 em vez de `NOT IN`?**
-   - Além de otimizar melhor com *anti-join* no PostgreSQL, `NOT IN` tem a armadilha clássica do **`NULL`**: se a subconsulta retornar qualquer `NULL`, `NOT IN` avalia tudo como `UNKNOWN` e devolve 0 linhas. `NOT EXISTS` é imune a `NULL` e expressa diretamente ausência relacional.
+4. **Por que usar `NOT EXISTS` em vez de `NOT IN` na Consulta 6?**
+   - `NOT IN` falha silenciosamente e retorna zero linhas se houver qualquer `NULL` na subconsulta; `NOT EXISTS` é imune a `NULL` e permite *anti-join* eficiente no otimizador do PostgreSQL.
 
-5. **Qual a diferença entre `ON DELETE CASCADE` e `ON DELETE SET NULL` no esquema de vocês?**
-   - **`CASCADE`** foi usado apenas em **entidades fracas/dependentes** que não fazem sentido isoladas: se um aviso é apagado, suas fotos (`escola_avisos_imagens`) somem; se um evento ou turma é apagado, o vínculo em `escola_turmas_eventos` é removido.
-   - **`SET NULL`** foi usado nas 6 FKs de **`autor_id`**: se um operador sair da escola e for removido, o aviso, documento ou evento institucional **permanece preservado**, ficando apenas com `autor_id = NULL`.
+5. **Quando vocês usaram `ON DELETE CASCADE` vs. `ON DELETE SET NULL`?**
+   - `CASCADE` apenas em entidades dependentes fracas (imagens de aviso/acervo, links, posts, WhatsApp da turma, vínculos N:N).
+   - `SET NULL` nas 6 FKs de `autor_id`, preservando os registros institucionais caso um operador seja excluído.
 
 6. **O que faz `WITH (security_invoker = true)` nas Views públicas?**
-   - Por padrão no PostgreSQL, uma View executa com as permissões de quem a **criou** (`security_definer`), podendo contornar o RLS das tabelas base. Com `security_invoker = true` (PostgreSQL 15+), a View executa com as permissões e políticas RLS de quem está **consultando** (`anon` ou `authenticated`), eliminando risco de vazamento.
+   - Faz a View executar com as permissões e políticas RLS de quem consulta (`anon` ou `authenticated`), evitando que uma View contorne o RLS do criador (`security_definer`).
 
-7. **Por que `escola_usuarios` não apaga o conteúdo quando um professor/gestor deixa a escola, e por que existe a coluna `ativo`?**
-   - Primeiro, porque a coluna `ativo` permite **desativação lógica** imediata sem perder rastreabilidade de quem publicou os comunicados (`escola_is_admin()` e `escola_is_editor()` exigem `ativo = true`). Segundo, mesmo em remoção física, `ON DELETE SET NULL` garante que o histórico público da escola não seja destruído em cascata.
+7. **Por que `escola_usuarios` não apaga avisos quando um autor sai, e para que serve `ativo`?**
+   - O campo `ativo` permite bloqueio imediato do operador nas funções `escola_is_admin()` e `escola_is_editor()` sem apagar seu histórico. Mesmo em remoção física, `ON DELETE SET NULL` preserva os documentos e avisos da escola.
 
-8. **Por que incluir `ano_letivo` na chave única de `escola_turmas`?**
-   - Todo ano a escola tem uma turma `"101 - 1º Ano Ensino Médio - Matutino"`. Sem `ano_letivo` na chave candidata `UNIQUE (ano_letivo, ano, nome, turno)`, a escola teria que sobrescrever a turma na virada de 2025 para 2026 ou permitir duplicatas ambíguas. Com `ano_letivo`, cada ano letivo tem sua identidade única em 3FN e o histórico de posts/eventos de 2025 fica 100% preservado.
+8. **Por que colocar `ano_letivo` na chave única de `escola_turmas`?**
+   - Porque todo ano existe uma turma `"101 - 1º Ano Ensino Médio - Matutino"`. Sem `ano_letivo` na `UNIQUE (ano_letivo, ano, nome, turno)`, a virada de 2025 para 2026 sobrescreveria os dados ou geraria duplicidade ambígua.
