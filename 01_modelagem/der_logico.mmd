@@ -1,0 +1,192 @@
+erDiagram
+    escola_usuarios {
+        uuid id PK
+        text nome
+        text email UK
+        usuario_role_enum role
+        boolean ativo
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    escola_turmas {
+        uuid id PK
+        integer ano_letivo UK
+        text ano UK
+        text nome UK
+        turno_enum turno UK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    escola_turmas_links {
+        uuid id PK
+        uuid turma_id FK,UK
+        text titulo
+        text url
+        integer ordem UK
+        timestamptz created_at
+    }
+
+    escola_whatsapp_grupos {
+        uuid id PK
+        uuid turma_id FK,UK
+        text nome
+        text link_convite
+        boolean ativo
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    escola_turmas_posts {
+        uuid id PK
+        uuid turma_id FK
+        text titulo
+        text resumo
+        text conteudo
+        text imagem_url
+        text link_referencia
+        publicacao_status_enum status
+        timestamptz data_publicacao
+        timestamptz data_expiracao
+        uuid autor_id FK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    escola_avisos {
+        uuid id PK
+        text titulo
+        text resumo
+        text conteudo
+        text categoria
+        text imagem_url
+        importancia_enum importancia
+        boolean destaque_home
+        publicacao_status_enum status
+        timestamptz data_publicacao
+        timestamptz data_expiracao
+        uuid autor_id FK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    escola_avisos_imagens {
+        uuid id PK
+        uuid aviso_id FK,UK
+        text url
+        text legenda
+        integer ordem UK
+        timestamptz created_at
+    }
+
+    escola_conteudo_paginas {
+        uuid id PK
+        text slug UK
+        text titulo
+        text resumo
+        text conteudo_html
+        text imagem_url
+        boolean publicado
+        uuid autor_id FK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    escola_acervo {
+        uuid id PK
+        text ano
+        text categoria
+        text titulo
+        text descricao
+        text capa_url
+        publicacao_status_enum status
+        timestamptz data_publicacao
+        uuid autor_id FK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    escola_acervo_imagens {
+        uuid id PK
+        uuid acervo_id FK,UK
+        text url
+        text legenda
+        integer ordem UK
+        timestamptz created_at
+    }
+
+    escola_documentos {
+        uuid id PK
+        text titulo
+        text descricao
+        text categoria
+        text url_arquivo
+        text nome_arquivo
+        text mime_type
+        bigint tamanho_bytes
+        publicacao_status_enum status
+        uuid autor_id FK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    escola_eventos {
+        uuid id PK
+        text titulo
+        text descricao
+        text local
+        timestamptz data_inicio
+        timestamptz data_fim
+        boolean dia_inteiro
+        text imagem_url
+        status_enum status
+        uuid autor_id FK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    escola_turmas_eventos {
+        uuid evento_id PK,FK
+        uuid turma_id PK,FK
+        timestamptz created_at
+    }
+
+    escola_refeicoes {
+        uuid id PK
+        date data UK
+        turno_enum turno UK
+        text descricao
+        text observacoes
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    escola_notificacoes {
+        uuid id PK
+        text titulo
+        text mensagem
+        importancia_enum importancia
+        boolean ativa
+        timestamptz data_inicio
+        timestamptz data_fim
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    escola_usuarios |o--o{ escola_avisos : "autor_id (SET NULL)"
+    escola_usuarios |o--o{ escola_acervo : "autor_id (SET NULL)"
+    escola_usuarios |o--o{ escola_documentos : "autor_id (SET NULL)"
+    escola_usuarios |o--o{ escola_conteudo_paginas : "autor_id (SET NULL)"
+    escola_usuarios |o--o{ escola_turmas_posts : "autor_id (SET NULL)"
+    escola_usuarios |o--o{ escola_eventos : "autor_id (SET NULL)"
+
+    escola_avisos ||--o{ escola_avisos_imagens : "aviso_id (CASCADE)"
+    escola_acervo ||--o{ escola_acervo_imagens : "acervo_id (CASCADE)"
+
+    escola_turmas ||--o| escola_whatsapp_grupos : "turma_id 1:1 (CASCADE)"
+    escola_turmas ||--o{ escola_turmas_links : "turma_id (CASCADE)"
+    escola_turmas ||--o{ escola_turmas_posts : "turma_id (CASCADE)"
+
+    escola_eventos ||--o{ escola_turmas_eventos : "evento_id (CASCADE)"
+    escola_turmas ||--o{ escola_turmas_eventos : "turma_id (CASCADE)"

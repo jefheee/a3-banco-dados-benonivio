@@ -1,0 +1,126 @@
+erDiagram
+    USUARIO {
+        chave identificador
+        atributo nome
+        atributo email
+        atributo papel
+        atributo ativo
+    }
+
+    TURMA {
+        chave identificador
+        atributo ano_letivo
+        atributo serie
+        atributo nome
+        atributo turno
+    }
+
+    GRUPO_WHATSAPP {
+        chave identificador
+        atributo nome
+        atributo link_convite
+        atributo ativo
+    }
+
+    LINK_TURMA {
+        chave identificador
+        atributo titulo
+        atributo url
+        atributo ordem
+    }
+
+    POST_TURMA {
+        chave identificador
+        atributo titulo
+        atributo resumo
+        atributo status
+        atributo data_publicacao
+    }
+
+    AVISO {
+        chave identificador
+        atributo titulo
+        atributo resumo
+        atributo categoria
+        atributo importancia
+        atributo status
+    }
+
+    IMAGEM_AVISO {
+        chave identificador
+        atributo url
+        atributo legenda
+        atributo ordem
+    }
+
+    ACERVO {
+        chave identificador
+        atributo ano
+        atributo categoria
+        atributo titulo
+        atributo status
+    }
+
+    IMAGEM_ACERVO {
+        chave identificador
+        atributo url
+        atributo legenda
+        atributo ordem
+    }
+
+    DOCUMENTO {
+        chave identificador
+        atributo titulo
+        atributo categoria
+        atributo nome_arquivo
+        atributo tamanho_bytes
+        atributo status
+    }
+
+    PAGINA_INSTITUCIONAL {
+        chave identificador
+        atributo slug
+        atributo titulo
+        atributo publicado
+    }
+
+    EVENTO {
+        chave identificador
+        atributo titulo
+        atributo local
+        atributo data_inicio
+        atributo data_fim
+        atributo status
+    }
+
+    REFEICAO {
+        chave identificador
+        atributo data
+        atributo turno
+        atributo descricao
+        atributo observacoes
+    }
+
+    NOTIFICACAO {
+        chave identificador
+        atributo titulo
+        atributo mensagem
+        atributo importancia
+        atributo ativa
+    }
+
+    USUARIO ||--o{ AVISO : "publica"
+    USUARIO ||--o{ ACERVO : "registra"
+    USUARIO ||--o{ DOCUMENTO : "disponibiliza"
+    USUARIO ||--o{ PAGINA_INSTITUCIONAL : "edita"
+    USUARIO ||--o{ POST_TURMA : "publica"
+    USUARIO ||--o{ EVENTO : "organiza"
+
+    AVISO ||--o{ IMAGEM_AVISO : "contem"
+    ACERVO ||--o{ IMAGEM_ACERVO : "contem"
+
+    TURMA ||--o| GRUPO_WHATSAPP : "possui"
+    TURMA ||--o{ LINK_TURMA : "oferece"
+    TURMA ||--o{ POST_TURMA : "recebe"
+
+    EVENTO }o--o{ TURMA : "envolve"

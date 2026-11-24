@@ -1,0 +1,380 @@
+// ============================================================================
+// Portal Escolar EEB Prof. Benonívio João Martins — Modelo Lógico / Físico
+// Fonte de verdade: 02_sql/00_ddl_completo_do_zero.sql (PostgreSQL 17 / Supabase)
+// Projeto: Avaliação A3 — Banco de Dados (UNISUL 2026)
+// Uso: Cole integralmente em https://dbdiagram.io/d
+// ============================================================================
+
+Project portal_escolar_benonivio {
+  database_type: 'PostgreSQL'
+  Note: 'Schema normalizado (1FN, 2FN e 3FN) com 15 tabelas, 5 ENUMs, 13 FKs, 2 Views publicas e 70 politicas RLS.'
+}
+
+// ----------------------------------------------------------------------------
+// Tipos Enumerados (5 ENUMs)
+// ----------------------------------------------------------------------------
+Enum importancia_enum {
+  normal
+  importante
+  urgente
+}
+
+Enum publicacao_status_enum {
+  rascunho
+  publicado
+  arquivado
+}
+
+Enum status_enum {
+  ativo
+  inativo
+  expirado
+}
+
+Enum turno_enum {
+  matutino
+  vespertino
+  noturno
+  integral
+}
+
+Enum usuario_role_enum {
+  admin
+  editor
+}
+
+// ----------------------------------------------------------------------------
+// 1. Identidade e Acesso
+// ----------------------------------------------------------------------------
+Table escola_usuarios {
+  id uuid [pk, not null, default: `gen_random_uuid()`, note: 'Em producao vincula-se a auth.users(id) ON DELETE CASCADE']
+  nome text [not null]
+  email text [not null, unique, note: 'Normalizado em minusculas e formato valido']
+  role usuario_role_enum [not null, default: 'editor']
+  ativo boolean [not null, default: true]
+  created_at timestamptz [not null, default: `timezone('utc', now())`]
+  updated_at timestamptz [not null, default: `timezone('utc', now())`]
+
+  Note: 'Operadores, professores e administradores do portal escolar.'
+}
+
+// ----------------------------------------------------------------------------
+// 2. Turmas e Comunicação
+// ----------------------------------------------------------------------------
+Table escola_turmas {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  ano_letivo integer [not null, default: 2026, note: 'CHECK (ano_letivo >= 2000) — preserva historico anual']
+  ano text [not null, note: 'Serie ou etapa (ex.: 1o Ano Ensino Medio)']
+  nome text [not null, note: 'Codigo da turma (ex.: 101, 201, 901)']
+  turno turno_enum [not null]
+  created_at timestamptz [not null, default: `timezone('utc', now())`]
+  updated_at timestamptz [not null, default: `timezone('utc', now())`]
+
+  Indexes {
+    (ano_letivo, ano, nome, turno) [unique, name: 'uq_turmas_ano_letivo_serie_nome_turno']
+  }
+
+  Note: 'Turmas regulares organizadas por ano letivo, serie e turno em 3FN.'
+}
+
+Table escola_turmas_links {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  turma_id uuid [not null]
+  titulo text [not null]
+  url text [not null]
+  ordem integer [not null, default: 0, note: 'CHECK (ordem >= 0)']
+  created_at timestamptz [not null, default: `timezone('utc', now())`]
+
+  Indexes {
+    (turma_id, ordem) [unique, name: 'uq_escola_turmas_links_turma_ordem']
+  }
+
+  Note: 'Links externos de apoio (Classroom, Drive) em 1FN; substitui antigo JSONB.'
+}
+
+Table escola_whatsapp_grupos {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  turma_id uuid [not null, unique, note: 'Relacao 1:1 com escola_turmas; turno obtido via JOIN (3FN)']
+  nome text [not null]
+  link_convite text [not null]
+  ativo boolean [not null, default: true]
+  created_at timestamptz [not null, default: `timezone('utc', now())`]
+  updated_at timestamptz [not null, default: `timezone('utc', now())`]
+
+  Note: 'Grupos oficiais de WhatsApp por turma (1:1 em 3FN).'
+}
+
+Table escola_turmas_posts {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  turma_id uuid [not null]
+  titulo text [not null]
+  resumo text
+  conteudo text
+  imagem_url text
+  link_referencia text
+  status publicacao_status_enum [not null, default: 'publicado']
+  data_publicacao timestamptz [not null, default: `timezone('utc', now())`]
+  data_expiracao timestamptz [note: 'CHECK (data_expiracao IS NULL OR data_expiracao > data_publicacao)']
+  autor_id uuid
+  created_at timestamptz [not null, default: `timezone('utc', now())`]
+  updated_at timestamptz [not null, default: `timezone('utc', now())`]
+
+  Indexes {
+    autor_id [name: 'ix_escola_turmas_posts_autor']
+    (turma_id, status, data_publicacao) [name: 'ix_escola_turmas_posts_pub']
+  }
+
+  Note: 'Mural pedagogico especifico de cada turma.'
+}
+
+// ----------------------------------------------------------------------------
+// 3. Conteúdo e Mural
+// ----------------------------------------------------------------------------
+Table escola_avisos {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  titulo text [not null]
+  resumo text [not null]
+  conteudo text
+  categoria text [not null]
+  imagem_url text
+  importancia importancia_enum [not null, default: 'normal']
+  destaque_home boolean [not null, default: false]
+  status publicacao_status_enum [not null, default: 'publicado']
+  data_publicacao timestamptz [not null, default: `timezone('utc', now())`]
+  data_expiracao timestamptz [note: 'CHECK (data_expiracao IS NULL OR data_expiracao > data_publicacao)']
+  autor_id uuid
+  created_at timestamptz [not null, default: `timezone('utc', now())`]
+  updated_at timestamptz [not null, default: `timezone('utc', now())`]
+
+  Indexes {
+    autor_id [name: 'ix_escola_avisos_autor']
+    (status, data_publicacao) [name: 'ix_escola_avisos_pub']
+  }
+
+  Note: 'Comunicados e noticias do mural oficial da escola.'
+}
+
+Table escola_avisos_imagens {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  aviso_id uuid [not null]
+  url text [not null]
+  legenda text
+  ordem integer [not null, default: 0, note: 'CHECK (ordem >= 0)']
+  created_at timestamptz [not null, default: `timezone('utc', now())`]
+
+  Indexes {
+    (aviso_id, ordem) [unique, name: 'uq_escola_avisos_imagens_aviso_ordem']
+  }
+
+  Note: 'Galeria de imagens de avisos em 1FN.'
+}
+
+Table escola_conteudo_paginas {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  slug text [not null, unique, note: 'CHECK (slug ~ ^[a-z0-9]+(?:-[a-z0-9]+)*$)']
+  titulo text [not null]
+  resumo text
+  conteudo_html text
+  imagem_url text
+  publicado boolean [not null, default: true]
+  autor_id uuid
+  created_at timestamptz [not null, default: `timezone('utc', now())`]
+  updated_at timestamptz [not null, default: `timezone('utc', now())`]
+
+  Indexes {
+    autor_id [name: 'ix_escola_conteudo_paginas_autor']
+    (publicado, slug) [name: 'ix_escola_conteudo_paginas_pub_slug']
+  }
+
+  Note: 'Paginas institucionais dinamicas do portal.'
+}
+
+Table escola_notificacoes {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  titulo text [not null]
+  mensagem text [not null]
+  importancia importancia_enum [not null, default: 'normal']
+  ativa boolean [not null, default: true]
+  data_inicio timestamptz [not null, default: `timezone('utc', now())`]
+  data_fim timestamptz [note: 'CHECK (data_fim IS NULL OR data_fim >= data_inicio)']
+  created_at timestamptz [not null, default: `timezone('utc', now())`]
+  updated_at timestamptz [not null, default: `timezone('utc', now())`]
+
+  Indexes {
+    (ativa, data_inicio, data_fim) [name: 'ix_escola_notificacoes_ativa']
+  }
+
+  Note: 'Alertas globais e comunicados urgentes do portal.'
+}
+
+// ----------------------------------------------------------------------------
+// 4. Memória e Documentos
+// ----------------------------------------------------------------------------
+Table escola_acervo {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  ano text [not null]
+  categoria text [not null]
+  titulo text [not null]
+  descricao text
+  capa_url text
+  status publicacao_status_enum [not null, default: 'publicado']
+  data_publicacao timestamptz [not null, default: `timezone('utc', now())`]
+  autor_id uuid
+  created_at timestamptz [not null, default: `timezone('utc', now())`]
+  updated_at timestamptz [not null, default: `timezone('utc', now())`]
+
+  Indexes {
+    autor_id [name: 'ix_escola_acervo_autor']
+    (status, ano) [name: 'ix_escola_acervo_status_ano']
+  }
+
+  Note: 'Acervo historico, Revista Okaza, Grupo Butterfly e projetos.'
+}
+
+Table escola_acervo_imagens {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  acervo_id uuid [not null]
+  url text [not null]
+  legenda text
+  ordem integer [not null, default: 0, note: 'CHECK (ordem >= 0)']
+  created_at timestamptz [not null, default: `timezone('utc', now())`]
+
+  Indexes {
+    (acervo_id, ordem) [unique, name: 'uq_escola_acervo_imagens_acervo_ordem']
+  }
+
+  Note: 'Galeria fotografica dos albuns do acervo em 1FN.'
+}
+
+Table escola_documentos {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  titulo text [not null]
+  descricao text
+  categoria text [not null]
+  url_arquivo text [not null]
+  nome_arquivo text [not null]
+  mime_type text [not null]
+  tamanho_bytes bigint [not null, note: 'CHECK (tamanho_bytes >= 0)']
+  status publicacao_status_enum [not null, default: 'publicado']
+  autor_id uuid
+  created_at timestamptz [not null, default: `timezone('utc', now())`]
+  updated_at timestamptz [not null, default: `timezone('utc', now())`]
+
+  Indexes {
+    autor_id [name: 'ix_escola_documentos_autor']
+    (categoria, status) [name: 'ix_escola_documentos_cat']
+  }
+
+  Note: 'Repositorio de documentos oficiais para download.'
+}
+
+// ----------------------------------------------------------------------------
+// 5. Eventos e Cardápio
+// ----------------------------------------------------------------------------
+Table escola_eventos {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  titulo text [not null]
+  descricao text
+  local text
+  data_inicio timestamptz [not null]
+  data_fim timestamptz [note: 'CHECK (data_fim IS NULL OR data_fim >= data_inicio)']
+  dia_inteiro boolean [not null, default: false]
+  imagem_url text
+  status status_enum [not null, default: 'ativo']
+  autor_id uuid
+  created_at timestamptz [not null, default: `timezone('utc', now())`]
+  updated_at timestamptz [not null, default: `timezone('utc', now())`]
+
+  Indexes {
+    autor_id [name: 'ix_escola_eventos_autor']
+    (data_inicio, data_fim) [name: 'ix_escola_eventos_datas']
+    (status, data_inicio) [name: 'ix_escola_eventos_status_inicio']
+  }
+
+  Note: 'Programacao do calendario escolar.'
+}
+
+Table escola_turmas_eventos {
+  evento_id uuid [not null]
+  turma_id uuid [not null]
+  created_at timestamptz [not null, default: `timezone('utc', now())`]
+
+  Indexes {
+    (evento_id, turma_id) [pk, name: 'escola_turmas_eventos_pkey']
+    turma_id [name: 'ix_escola_turmas_eventos_turma']
+  }
+
+  Note: 'Associativa N:N entre eventos e turmas participantes (2FN/3FN).'
+}
+
+Table escola_refeicoes {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  data date [not null]
+  turno turno_enum [not null]
+  descricao text [not null]
+  observacoes text
+  created_at timestamptz [not null, default: `timezone('utc', now())`]
+  updated_at timestamptz [not null, default: `timezone('utc', now())`]
+
+  Indexes {
+    (data, turno) [unique, name: 'uq_refeicoes_data_turno']
+  }
+
+  Note: 'Cardapio diario da alimentacao escolar (PNAE/SED-SC).'
+}
+
+// ----------------------------------------------------------------------------
+// Relacionamentos (13 FKs com ON DELETE explicito)
+// ----------------------------------------------------------------------------
+
+// Autoria (ON DELETE SET NULL — preserva historico institucional)
+Ref: escola_avisos.autor_id > escola_usuarios.id [delete: set null]
+Ref: escola_acervo.autor_id > escola_usuarios.id [delete: set null]
+Ref: escola_documentos.autor_id > escola_usuarios.id [delete: set null]
+Ref: escola_conteudo_paginas.autor_id > escola_usuarios.id [delete: set null]
+Ref: escola_turmas_posts.autor_id > escola_usuarios.id [delete: set null]
+Ref: escola_eventos.autor_id > escola_usuarios.id [delete: set null]
+
+// Composicao 1:N e 1:1 (ON DELETE CASCADE)
+Ref: escola_avisos_imagens.aviso_id > escola_avisos.id [delete: cascade]
+Ref: escola_acervo_imagens.acervo_id > escola_acervo.id [delete: cascade]
+Ref: escola_turmas_links.turma_id > escola_turmas.id [delete: cascade]
+Ref: escola_turmas_posts.turma_id > escola_turmas.id [delete: cascade]
+Ref: escola_whatsapp_grupos.turma_id - escola_turmas.id [delete: cascade]
+
+// Associacao N:N Eventos <-> Turmas (ON DELETE CASCADE)
+Ref: escola_turmas_eventos.evento_id > escola_eventos.id [delete: cascade]
+Ref: escola_turmas_eventos.turma_id > escola_turmas.id [delete: cascade]
+
+// ----------------------------------------------------------------------------
+// Agrupamento Visual por Subsistemas (TableGroup)
+// ----------------------------------------------------------------------------
+TableGroup Identidade_Acesso [color: #1E3A8A] {
+  escola_usuarios
+}
+
+TableGroup Turmas_Comunicacao [color: #0F766E] {
+  escola_turmas
+  escola_turmas_links
+  escola_whatsapp_grupos
+  escola_turmas_posts
+}
+
+TableGroup Conteudo_Mural [color: #B45309] {
+  escola_avisos
+  escola_avisos_imagens
+  escola_conteudo_paginas
+  escola_notificacoes
+}
+
+TableGroup Memoria_Documentos [color: #6D28D9] {
+  escola_acervo
+  escola_acervo_imagens
+  escola_documentos
+}
+
+TableGroup Eventos_Cardapio [color: #BE123C] {
+  escola_eventos
+  escola_turmas_eventos
+  escola_refeicoes
+}

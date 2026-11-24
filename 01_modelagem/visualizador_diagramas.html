@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visualizador DER — Portal Escolar EEB Benonívio João Martins (A3)</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --card: #ffffff;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 28px;
+    }
+    header {
+      max-width: 1400px;
+      margin: 0 auto 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    h1 { margin: 0; font-size: 1.45rem; font-weight: 700; }
+    p.subtitle { margin: 4px 0 0; color: var(--muted); font-size: 0.92rem; }
+    .section {
+      max-width: 1400px;
+      margin: 0 auto 32px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-header h2 { margin: 0; font-size: 1.1rem; }
+    .actions { display: flex; gap: 10px; }
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 15px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    button:hover { background: var(--accent-hover); }
+    button.secondary { background: #334155; }
+    button.secondary:hover { background: #475569; }
+    .diagram-canvas {
+      background: var(--card);
+      padding: 24px;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+      min-height: 360px;
+    }
+    .diagram-canvas svg { max-width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Modelagem Relacional — Portal Escolar EEB Prof. Benonívio João Martins</h1>
+      <p class="subtitle">Avaliação A3 (UNISUL 2026) · 15 Tabelas (1FN, 2FN, 3FN) · 5 ENUMs · 13 FKs · 2 Views</p>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="section-header">
+      <h2>1. Diagrama Entidade-Relacionamento Conceitual (Domínio)</h2>
+      <div class="actions">
+        <button onclick="downloadPNG('diagram-conceitual', 'der_conceitual.png', 3)">Baixar PNG (Alta Res.)</button>
+        <button class="secondary" onclick="downloadSVG('diagram-conceitual', 'der_conceitual.svg')">Baixar SVG</button>
+      </div>
+    </div>
+    <div id="diagram-conceitual" class="diagram-canvas">
+      <div class="mermaid">
+erDiagram
+    USUARIO {
+        chave identificador
+        atributo nome
+        atributo email
+        atributo papel
+        atributo ativo
+    }
+    TURMA {
+        chave identificador
+        atributo ano_letivo
+        atributo serie
+        atributo nome
+        atributo turno
+    }
+    GRUPO_WHATSAPP {
+        chave identificador
+        atributo nome
+        atributo link_convite
+        atributo ativo
+    }
+    LINK_TURMA {
+        chave identificador
+        atributo titulo
+        atributo url
+        atributo ordem
+    }
+    POST_TURMA {
+        chave identificador
+        atributo titulo
+        atributo resumo
+        atributo status
+        atributo data_publicacao
+    }
+    AVISO {
+        chave identificador
+        atributo titulo
+        atributo resumo
+        atributo categoria
+        atributo importancia
+        atributo status
+    }
+    IMAGEM_AVISO {
+        chave identificador
+        atributo url
+        atributo legenda
+        atributo ordem
+    }
+    ACERVO {
+        chave identificador
+        atributo ano
+        atributo categoria
+        atributo titulo
+        atributo status
+    }
+    IMAGEM_ACERVO {
+        chave identificador
+        atributo url
+        atributo legenda
+        atributo ordem
+    }
+    DOCUMENTO {
+        chave identificador
+        atributo titulo
+        atributo categoria
+        atributo nome_arquivo
+        atributo tamanho_bytes
+        atributo status
+    }
+    PAGINA_INSTITUCIONAL {
+        chave identificador
+        atributo slug
+        atributo titulo
+        atributo publicado
+    }
+    EVENTO {
+        chave identificador
+        atributo titulo
+        atributo local
+        atributo data_inicio
+        atributo data_fim
+        atributo status
+    }
+    REFEICAO {
+        chave identificador
+        atributo data
+        atributo turno
+        atributo descricao
+        atributo observacoes
+    }
+    NOTIFICACAO {
+        chave identificador
+        atributo titulo
+        atributo mensagem
+        atributo importancia
+        atributo ativa
+    }
+
+    USUARIO ||--o{ AVISO : "publica"
+    USUARIO ||--o{ ACERVO : "registra"
+    USUARIO ||--o{ DOCUMENTO : "disponibiliza"
+    USUARIO ||--o{ PAGINA_INSTITUCIONAL : "edita"
+    USUARIO ||--o{ POST_TURMA : "publica"
+    USUARIO ||--o{ EVENTO : "organiza"
+    AVISO ||--o{ IMAGEM_AVISO : "contem"
+    ACERVO ||--o{ IMAGEM_ACERVO : "contem"
+    TURMA ||--o| GRUPO_WHATSAPP : "possui"
+    TURMA ||--o{ LINK_TURMA : "oferece"
+    TURMA ||--o{ POST_TURMA : "recebe"
+    EVENTO }o--o{ TURMA : "envolve"
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <h2>2. Diagrama Entidade-Relacionamento Lógico (15 Tabelas, PK, FK, UK)</h2>
+      <div class="actions">
+        <button onclick="downloadPNG('diagram-logico', 'der_logico.png', 3)">Baixar PNG (Alta Res.)</button>
+        <button class="secondary" onclick="downloadSVG('diagram-logico', 'der_logico.svg')">Baixar SVG</button>
+      </div>
+    </div>
+    <div id="diagram-logico" class="diagram-canvas">
+      <div class="mermaid">
+erDiagram
+    escola_usuarios {
+        uuid id PK
+        text nome
+        text email UK
+        usuario_role_enum role
+        boolean ativo
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    escola_turmas {
+        uuid id PK
+        integer ano_letivo UK
+        text ano UK
+        text nome UK
+        turno_enum turno UK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    escola_turmas_links {
+        uuid id PK
+        uuid turma_id FK,UK
+        text titulo
+        text url
+        integer ordem UK
+        timestamptz created_at
+    }
+    escola_whatsapp_grupos {
+        uuid id PK
+        uuid turma_id FK,UK
+        text nome
+        text link_convite
+        boolean ativo
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    escola_turmas_posts {
+        uuid id PK
+        uuid turma_id FK
+        text titulo
+        text resumo
+        text conteudo
+        text imagem_url
+        text link_referencia
+        publicacao_status_enum status
+        timestamptz data_publicacao
+        timestamptz data_expiracao
+        uuid autor_id FK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    escola_avisos {
+        uuid id PK
+        text titulo
+        text resumo
+        text conteudo
+        text categoria
+        text imagem_url
+        importancia_enum importancia
+        boolean destaque_home
+        publicacao_status_enum status
+        timestamptz data_publicacao
+        timestamptz data_expiracao
+        uuid autor_id FK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    escola_avisos_imagens {
+        uuid id PK
+        uuid aviso_id FK,UK
+        text url
+        text legenda
+        integer ordem UK
+        timestamptz created_at
+    }
+    escola_conteudo_paginas {
+        uuid id PK
+        text slug UK
+        text titulo
+        text resumo
+        text conteudo_html
+        text imagem_url
+        boolean publicado
+        uuid autor_id FK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    escola_acervo {
+        uuid id PK
+        text ano
+        text categoria
+        text titulo
+        text descricao
+        text capa_url
+        publicacao_status_enum status
+        timestamptz data_publicacao
+        uuid autor_id FK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    escola_acervo_imagens {
+        uuid id PK
+        uuid acervo_id FK,UK
+        text url
+        text legenda
+        integer ordem UK
+        timestamptz created_at
+    }
+    escola_documentos {
+        uuid id PK
+        text titulo
+        text descricao
+        text categoria
+        text url_arquivo
+        text nome_arquivo
+        text mime_type
+        bigint tamanho_bytes
+        publicacao_status_enum status
+        uuid autor_id FK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    escola_eventos {
+        uuid id PK
+        text titulo
+        text descricao
+        text local
+        timestamptz data_inicio
+        timestamptz data_fim
+        boolean dia_inteiro
+        text imagem_url
+        status_enum status
+        uuid autor_id FK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    escola_turmas_eventos {
+        uuid evento_id PK,FK
+        uuid turma_id PK,FK
+        timestamptz created_at
+    }
+    escola_refeicoes {
+        uuid id PK
+        date data UK
+        turno_enum turno UK
+        text descricao
+        text observacoes
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    escola_notificacoes {
+        uuid id PK
+        text titulo
+        text mensagem
+        importancia_enum importancia
+        boolean ativa
+        timestamptz data_inicio
+        timestamptz data_fim
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    escola_usuarios |o--o{ escola_avisos : "autor_id (SET NULL)"
+    escola_usuarios |o--o{ escola_acervo : "autor_id (SET NULL)"
+    escola_usuarios |o--o{ escola_documentos : "autor_id (SET NULL)"
+    escola_usuarios |o--o{ escola_conteudo_paginas : "autor_id (SET NULL)"
+    escola_usuarios |o--o{ escola_turmas_posts : "autor_id (SET NULL)"
+    escola_usuarios |o--o{ escola_eventos : "autor_id (SET NULL)"
+    escola_avisos ||--o{ escola_avisos_imagens : "aviso_id (CASCADE)"
+    escola_acervo ||--o{ escola_acervo_imagens : "acervo_id (CASCADE)"
+    escola_turmas ||--o| escola_whatsapp_grupos : "turma_id 1:1 (CASCADE)"
+    escola_turmas ||--o{ escola_turmas_links : "turma_id (CASCADE)"
+    escola_turmas ||--o{ escola_turmas_posts : "turma_id (CASCADE)"
+    escola_eventos ||--o{ escola_turmas_eventos : "evento_id (CASCADE)"
+    escola_turmas ||--o{ escola_turmas_eventos : "turma_id (CASCADE)"
+      </div>
+    </div>
+  </section>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      securityLevel: 'loose',
+      er: { useMaxWidth: false, layoutDirection: 'TB' },
+      themeVariables: {
+        primaryColor: '#eff6ff',
+        primaryTextColor: '#0f172a',
+        primaryBorderColor: '#1d4ed8',
+        lineColor: '#334155',
+        secondaryColor: '#f8fafc',
+        tertiaryColor: '#f1f5f9',
+        fontFamily: 'Segoe UI, sans-serif'
+      }
+    });
+
+    function getSvgMarkup(containerId) {
+      const svg = document.querySelector(`#${containerId} svg`);
+      if (!svg) return null;
+      const clone = svg.cloneNode(true);
+      clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      const vb = svg.viewBox.baseVal;
+      const width = vb && vb.width ? vb.width : svg.getBoundingClientRect().width;
+      const height = vb && vb.height ? vb.height : svg.getBoundingClientRect().height;
+      clone.setAttribute('width', width);
+      clone.setAttribute('height', height);
+      return { svgStr: new XMLSerializer().serializeToString(clone), width, height };
+    }
+
+    function downloadSVG(containerId, filename) {
+      const data = getSvgMarkup(containerId);
+      if (!data) return alert('Diagrama ainda não renderizado.');
+      const blob = new Blob([data.svgStr], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadPNG(containerId, filename, scale = 3) {
+      const data = getSvgMarkup(containerId);
+      if (!data) return alert('Diagrama ainda não renderizado.');
+      const img = new Image();
+      const svgBlob = new Blob([data.svgStr], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.ceil(data.width * scale);
+        canvas.height = Math.ceil(data.height * scale);
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        canvas.toBlob((blob) => {
+          const pngUrl = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = pngUrl;
+          a.download = filename;
+          a.click();
+          URL.revokeObjectURL(pngUrl);
+        }, 'image/png');
+      };
+      img.src = url;
+    }
+  </script>
+</body>
+</html>
