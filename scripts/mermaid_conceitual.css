@@ -17,12 +17,19 @@ g.node g.label.name foreignObject {
   overflow: visible !important;
 }
 
+g.node g.label.name foreignObject > div {
+  text-align: center !important;
+  width: 100% !important;
+}
+
 g.node g.label.name,
 g.node g.label.name p,
 g.node g.label.name span {
   color: #FFFFFF !important;
   fill: #FFFFFF !important;
   font-weight: 600 !important;
+  font-size: 13.5px !important;
+  letter-spacing: -0.15px !important;
 }
 
 g.node g.label.attribute-type,

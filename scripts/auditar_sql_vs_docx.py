@@ -6,7 +6,7 @@ from docx import Document
 ROOT = Path(__file__).resolve().parent.parent
 SQL_PATH = ROOT / "02_sql" / "00_ddl_completo_do_zero.sql"
 DBML_PATH = ROOT / "01_modelagem" / "der_logico.dbml"
-DOCX_PATH = Path(sys.argv[1]) if len(sys.argv) > 1 else (ROOT / "04_entrega_final" / "01_Dicionario_de_Dados_A3_EEB_Benonivio.docx")
+DOCX_PATH = Path(sys.argv[1]) if len(sys.argv) > 1 else (ROOT / "01_modelagem" / "Dicionario_de_Dados_A3_FINAL.docx")
 
 
 def parse_sql(sql_text: str):

@@ -7,128 +7,144 @@ from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT_PATH = ROOT / "03_apresentacao" / "Apresentacao_A3_Portal_Escolar.pptx"
-IMG_DBDIAGRAM = ROOT / "01_modelagem" / "der_logico_dbdiagram.png"
-IMG_MERMAID = ROOT / "01_modelagem" / "der_logico.png"
+OUT_PPTX = ROOT / "03_apresentacao" / "Apresentacao_A3_Portal_Escolar.pptx"
+IMG_CONCEITUAL = ROOT / "01_modelagem" / "der_conceitual.png"
+IMG_LOGICO = ROOT / "01_modelagem" / "der_logico_dbdiagram.png"
 
-C_NAVY_DARK = RGBColor(0x0F, 0x17, 0x2A)
-C_NAVY = RGBColor(0x1E, 0x3A, 0x8A)
-C_BLUE = RGBColor(0x25, 0x63, 0xEB)
-C_TEAL = RGBColor(0x0F, 0x76, 0x6E)
-C_AMBER = RGBColor(0xD9, 0x77, 0x06)
-C_ROSE = RGBColor(0xBE, 0x12, 0x3C)
-C_BG_LIGHT = RGBColor(0xF8, 0xFA, 0xFC)
+# Paleta minimalista (3 tons principais + neutros)
+C_NAVY = RGBColor(0x0F, 0x25, 0x37)
+C_BLUE = RGBColor(0x1E, 0x40, 0xAF)
+C_ACCENT = RGBColor(0x38, 0xBD, 0xF8)
+C_DARK = RGBColor(0x1E, 0x29, 0x3B)
+C_MUTED = RGBColor(0x64, 0x74, 0x8B)
+C_SOFT_ON_DARK = RGBColor(0x94, 0xA3, 0xB8)
+C_LIGHT_MUTED = RGBColor(0xCB, 0xD5, 0xE1)
+C_BORDER = RGBColor(0xE2, 0xE8, 0xF0)
+C_BG_SOFT = RGBColor(0xF8, 0xFA, 0xFC)
 C_WHITE = RGBColor(0xFF, 0xFF, 0xFF)
-C_BORDER = RGBColor(0xCB, 0xD5, 0xE1)
-C_TEXT = RGBColor(0x0F, 0x17, 0x2A)
-C_MUTED = RGBColor(0x47, 0x55, 0x69)
+C_TEAL = RGBColor(0x0F, 0x76, 0x6E)
 
 FONT = "Segoe UI"
-
-
-def put_run(p, text, size=14, color=C_TEXT, bold=False):
-    r = p.add_run()
-    r.text = str(text)
-    r.font.name = FONT
-    r.font.size = Pt(size)
-    r.font.bold = bold
-    r.font.color.rgb = color
-    return r
+AUTHORS_RA = [
+    "Daniel Alves — RA: 1072517730",
+    "Gabriel Grando — RA: 10725118226",
+    "Jefherson Luiz — RA: 10725114819",
+    "Maicon Lodetti — RA: 1072511629",
+]
+PROFESSORES = "Professores: Fernando Costa Leite e Henrique Pereira Oliveira D'Eça Neves"
 
 
 def set_bg(slide, color):
-    fill = slide.background.fill
+    bg = slide.background
+    fill = bg.fill
     fill.solid()
     fill.fore_color.rgb = color
 
 
-def add_header(slide, title, subtitle, slide_num):
-    set_bg(slide, C_BG_LIGHT)
-    bar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(13.333), Inches(1.08))
-    bar.fill.solid()
-    bar.fill.fore_color.rgb = C_NAVY_DARK
-    bar.line.fill.background()
+def add_rect(slide, x, y, w, h, fill_color, border_color=None):
+    shp = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(x), Inches(y), Inches(w), Inches(h))
+    shp.fill.solid()
+    shp.fill.fore_color.rgb = fill_color
+    if border_color:
+        shp.line.color.rgb = border_color
+        shp.line.width = Pt(0.75)
+    else:
+        shp.line.fill.background()
+    shp.shadow.inherit = False
+    return shp
 
-    accent = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(1.08), Inches(13.333), Inches(0.06))
-    accent.fill.solid()
-    accent.fill.fore_color.rgb = C_BLUE
-    accent.line.fill.background()
 
-    tb = slide.shapes.add_textbox(Inches(0.6), Inches(0.14), Inches(10.8), Inches(0.84))
+def add_text(slide, x, y, w, h, text, size=18, bold=False, color=C_DARK, align=PP_ALIGN.LEFT, line_spacing=1.2):
+    tb = slide.shapes.add_textbox(Inches(x), Inches(y), Inches(w), Inches(h))
     tf = tb.text_frame
     tf.word_wrap = True
-    p1 = tf.paragraphs[0]
-    put_run(p1, title, size=24, color=C_WHITE, bold=True)
+    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = Inches(0.02)
+    p = tf.paragraphs[0]
+    p.alignment = align
+    p.line_spacing = line_spacing
+    r = p.add_run()
+    r.text = text
+    r.font.name = FONT
+    r.font.size = Pt(size)
+    r.font.bold = bold
+    r.font.color.rgb = color
+    return tb
 
-    p2 = tf.add_paragraph()
-    put_run(p2, subtitle, size=13, color=RGBColor(0x94, 0xA3, 0xB8))
 
-    nb = slide.shapes.add_textbox(Inches(11.65), Inches(0.34), Inches(1.15), Inches(0.4))
-    np = nb.text_frame.paragraphs[0]
-    np.alignment = PP_ALIGN.RIGHT
-    put_run(np, f"{slide_num:02d} / 10", size=13, color=RGBColor(0x93, 0xC5, 0xFD), bold=True)
-
-
-def add_card(slide, left, top, width, height, title=None, bullets=None, accent_color=C_BLUE, bg_color=C_WHITE, title_size=16, body_size=14.5):
-    card = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(left), Inches(top), Inches(width), Inches(height))
-    card.adjustments[0] = 0.04
-    card.fill.solid()
-    card.fill.fore_color.rgb = bg_color
-    card.line.color.rgb = C_BORDER
-    card.line.width = Pt(1)
-
-    strip = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(left), Inches(top), Inches(width), Inches(0.1))
-    strip.fill.solid()
-    strip.fill.fore_color.rgb = accent_color
-    strip.line.fill.background()
-
-    tb = slide.shapes.add_textbox(Inches(left + 0.25), Inches(top + 0.22), Inches(width - 0.5), Inches(height - 0.34))
+def add_bullets(slide, x, y, w, h, items, size=16.5, color=C_DARK, space_after=12, line_spacing=1.22):
+    tb = slide.shapes.add_textbox(Inches(x), Inches(y), Inches(w), Inches(h))
     tf = tb.text_frame
     tf.word_wrap = True
-    first = True
-    if title:
-        p = tf.paragraphs[0]
-        p.space_after = Pt(10)
-        put_run(p, title, size=title_size, color=accent_color, bold=True)
-        first = False
-    if bullets:
-        for b in bullets:
-            p = tf.paragraphs[0] if first else tf.add_paragraph()
-            first = False
-            p.space_after = Pt(9)
-            if isinstance(b, tuple):
-                bp, txt = b
-                put_run(p, bp, size=body_size, color=C_TEXT, bold=True)
-                put_run(p, txt, size=body_size, color=C_MUTED)
-            else:
-                put_run(p, f"• {b}", size=body_size, color=C_TEXT)
-    return card
+    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = Inches(0.02)
+    for idx, item in enumerate(items):
+        p = tf.paragraphs[0] if idx == 0 else tf.add_paragraph()
+        p.space_after = Pt(space_after)
+        p.line_spacing = line_spacing
+        if isinstance(item, tuple):
+            r1 = p.add_run()
+            r1.text = "•  " + item[0]
+            r1.font.name = FONT
+            r1.font.size = Pt(size)
+            r1.font.bold = True
+            r1.font.color.rgb = C_NAVY
+            r2 = p.add_run()
+            r2.text = item[1]
+            r2.font.name = FONT
+            r2.font.size = Pt(size)
+            r2.font.color.rgb = color
+        else:
+            r = p.add_run()
+            r.text = "•  " + item
+            r.font.name = FONT
+            r.font.size = Pt(size)
+            r.font.color.rgb = color
+    return tb
 
 
-def add_table(slide, left, top, width, height, headers, rows, col_widths, font_size=13):
-    tbl_shape = slide.shapes.add_table(1 + len(rows), len(headers), Inches(left), Inches(top), Inches(width), Inches(height))
-    table = tbl_shape.table
-    for i, w in enumerate(col_widths):
-        table.columns[i].width = Inches(w)
+def add_content_chrome(slide, title, slide_num, total=10):
+    set_bg(slide, C_WHITE)
+    # Fina barra superior minimalista
+    add_rect(slide, 0, 0, 13.333, 0.06, C_BLUE)
+    # Eyebrow discreto
+    add_text(slide, 0.75, 0.28, 8.5, 0.28, "BANCO DE DADOS · AVALIAÇÃO A3", size=9.5, bold=True, color=C_MUTED)
+    # Titulo principal
+    add_text(slide, 0.75, 0.56, 11.8, 0.58, title, size=26, bold=True, color=C_NAVY)
+    # Linha fina separadora
+    add_rect(slide, 0.75, 1.22, 11.83, 0.015, C_BORDER)
+    # Rodape discreto
+    add_rect(slide, 0.75, 6.96, 11.83, 0.012, C_BORDER)
+    add_text(slide, 0.75, 7.04, 9.0, 0.28, "Portal Escolar EEB Prof. Benonívio João Martins  ·  UNISUL 2026", size=9.5, color=C_MUTED)
+    add_text(slide, 11.2, 7.04, 1.38, 0.28, f"{slide_num:02d} / {total:02d}", size=9.5, bold=True, color=C_MUTED, align=PP_ALIGN.RIGHT)
 
-    for c, h in enumerate(headers):
-        cell = table.cell(0, c)
+
+def add_fitted_image(slide, img_path, x, y, max_w, max_h):
+    with Image.open(img_path) as im:
+        iw, ih = im.size
+    ratio = min(max_w / iw, max_h / ih)
+    fw, fh = iw * ratio, ih * ratio
+    px = x + (max_w - fw) / 2
+    py = y + (max_h - fh) / 2
+    slide.shapes.add_picture(str(img_path), Inches(px), Inches(py), width=Inches(fw), height=Inches(fh))
+
+
+def style_table_cell(cell, text, size=14.5, bold=False, color=C_DARK, bg=None, align=PP_ALIGN.LEFT):
+    cell.vertical_anchor = MSO_ANCHOR.MIDDLE
+    cell.margin_left = Inches(0.16)
+    cell.margin_right = Inches(0.16)
+    cell.margin_top = Inches(0.10)
+    cell.margin_bottom = Inches(0.10)
+    if bg:
         cell.fill.solid()
-        cell.fill.fore_color.rgb = C_NAVY
-        cell.vertical_anchor = MSO_ANCHOR.MIDDLE
-        p = cell.text_frame.paragraphs[0]
-        put_run(p, h, size=font_size, color=C_WHITE, bold=True)
-
-    for r_i, row_data in enumerate(rows):
-        bg = C_WHITE if r_i % 2 == 0 else RGBColor(0xF1, 0xF5, 0xF9)
-        for c_i, val in enumerate(row_data):
-            cell = table.cell(r_i + 1, c_i)
-            cell.fill.solid()
-            cell.fill.fore_color.rgb = bg
-            cell.vertical_anchor = MSO_ANCHOR.MIDDLE
-            p = cell.text_frame.paragraphs[0]
-            put_run(p, val, size=font_size, color=C_TEXT, bold=(c_i == 0))
-    return tbl_shape
+        cell.fill.fore_color.rgb = bg
+    p = cell.text_frame.paragraphs[0]
+    p.alignment = align
+    p.line_spacing = 1.15
+    r = p.add_run()
+    r.text = text
+    r.font.name = FONT
+    r.font.size = Pt(size)
+    r.font.bold = bold
+    r.font.color.rgb = color
 
 
 def build_deck():
@@ -137,395 +153,346 @@ def build_deck():
     prs.slide_height = Inches(7.5)
     blank = prs.slide_layouts[6]
 
-    # SLIDE 1 — CAPA
+    # =========================================================================
+    # SLIDE 1 — CAPA (Fundo azul-marinho profundo)
+    # =========================================================================
     s1 = prs.slides.add_slide(blank)
-    set_bg(s1, C_NAVY_DARK)
+    set_bg(s1, C_NAVY)
+    add_rect(s1, 0, 0, 13.333, 0.08, C_ACCENT)
 
-    band = s1.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(0.28), Inches(7.5))
-    band.fill.solid()
-    band.fill.fore_color.rgb = C_BLUE
-    band.line.fill.background()
+    add_text(
+        s1, 0.9, 0.72, 11.5, 0.35,
+        "UNISUL — CAMPUS PEDRA BRANCA  ·  ANÁLISE E DESENVOLVIMENTO DE SISTEMAS",
+        size=11, bold=True, color=C_ACCENT
+    )
+    add_text(
+        s1, 0.9, 1.35, 11.5, 1.45,
+        "Portal Escolar EEB Prof. Benonívio João Martins",
+        size=38, bold=True, color=C_WHITE, line_spacing=1.12
+    )
+    add_text(
+        s1, 0.9, 2.72, 10.8, 0.65,
+        "Modelagem e Reconstrução Relacional do Banco de Dados  —  Avaliação A3",
+        size=19, color=C_LIGHT_MUTED
+    )
 
-    badge = s1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.95), Inches(1.0), Inches(7.8), Inches(0.46))
-    badge.adjustments[0] = 0.5
-    badge.fill.solid()
-    badge.fill.fore_color.rgb = C_NAVY
-    badge.line.color.rgb = C_BLUE
-    bp = badge.text_frame.paragraphs[0]
-    bp.alignment = PP_ALIGN.CENTER
-    put_run(bp, "AVALIAÇÃO A3  •  BANCO DE DADOS  •  UNISUL — CAMPUS PEDRA BRANCA · 2026", size=11, color=RGBColor(0x93, 0xC5, 0xFD), bold=True)
+    add_rect(s1, 0.9, 3.60, 2.2, 0.04, C_ACCENT)
 
-    tb1 = s1.shapes.add_textbox(Inches(0.95), Inches(1.8), Inches(11.4), Inches(2.5))
-    tf1 = tb1.text_frame
-    tf1.word_wrap = True
-    p_t = tf1.paragraphs[0]
-    p_t.space_after = Pt(14)
-    put_run(p_t, "Modelagem e Refatoração Relacional\nPortal Escolar EEB Prof. Benonívio João Martins", size=36, color=C_WHITE, bold=True)
+    # 4 Integrantes com RA em 2 colunas limpas
+    add_text(s1, 0.9, 3.92, 6.0, 0.32, "INTEGRANTES", size=10.5, bold=True, color=C_ACCENT)
+    for idx, author in enumerate(AUTHORS_RA):
+        col = idx % 2
+        row = idx // 2
+        ax = 0.9 + col * 5.6
+        ay = 4.32 + row * 0.48
+        add_text(s1, ax, ay, 5.4, 0.40, author, size=16.5, bold=False, color=C_WHITE)
 
-    p_s = tf1.add_paragraph()
-    put_run(p_s, "De 9 tabelas com JSONB para 15 tabelas em 3FN no PostgreSQL 17 / Supabase", size=18, color=RGBColor(0x94, 0xA3, 0xB8))
+    add_rect(s1, 0.9, 5.88, 11.5, 0.015, RGBColor(0x28, 0x42, 0x58))
+    add_text(s1, 0.9, 6.08, 11.5, 0.36, PROFESSORES, size=14, color=C_LIGHT_MUTED)
+    add_text(s1, 0.9, 6.46, 11.5, 0.32, "Unidade Curricular: Banco de Dados  ·  Palhoça - SC, 2026", size=12.5, color=C_SOFT_ON_DARK)
 
-    card_meta = s1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.95), Inches(4.85), Inches(11.4), Inches(1.75))
-    card_meta.adjustments[0] = 0.06
-    card_meta.fill.solid()
-    card_meta.fill.fore_color.rgb = RGBColor(0x1E, 0x29, 0x3B)
-    card_meta.line.color.rgb = RGBColor(0x33, 0x41, 0x55)
-
-    tm = s1.shapes.add_textbox(Inches(1.25), Inches(5.1), Inches(10.8), Inches(1.35))
-    tfm = tm.text_frame
-    tfm.word_wrap = True
-    pm1 = tfm.paragraphs[0]
-    pm1.space_after = Pt(10)
-    put_run(pm1, "Equipe: ", size=14, color=RGBColor(0x93, 0xC5, 0xFD), bold=True)
-    put_run(pm1, "Daniel Alves  •  Gabriel Grando  •  Jefherson Luiz  •  Maicon Lodetti", size=14, color=C_WHITE)
-
-    pm2 = tfm.add_paragraph()
-    put_run(pm2, "Professores: ", size=14, color=RGBColor(0x93, 0xC5, 0xFD), bold=True)
-    put_run(pm2, "Fernando Costa Leite e Henrique Pereira Oliveira D'Eça Neves", size=14, color=RGBColor(0xCB, 0xD5, 0xE1))
-
-    # SLIDE 2 — O PROBLEMA REAL
+    # =========================================================================
+    # SLIDE 2 — O PROJETO REAL
+    # =========================================================================
     s2 = prs.slides.add_slide(blank)
-    add_header(s2, "O Problema Real", "Por que refatorar o banco de dados do Portal Escolar (escolabenonivio.vercel.app)", 2)
+    add_content_chrome(s2, "O Projeto Real", 2)
 
-    add_card(
-        s2, 0.6, 1.5, 5.95, 5.3,
-        title="Dores do Banco Legado",
-        bullets=[
-            ("JSONB Multivalorado: ", "Fotos e links sem chave estrangeira."),
-            ("Sem Histórico Letivo: ", "Virada de ano sobrescrevia turmas."),
-            ("Turno Redundante: ", "Grupos de WhatsApp repetiam dados da turma."),
-            ("Sem Travas no SGBD: ", "RLS permissivo e ausência de CHECKs."),
-        ],
-        accent_color=C_ROSE,
-        title_size=18,
-        body_size=15,
-    )
-    add_card(
-        s2, 6.8, 1.5, 5.95, 5.3,
-        title="Objetivos da Refatoração",
-        bullets=[
-            ("Preservar Histórico: ", "Anos letivos de 2025, 2026+ coexistindo."),
-            ("Integridade Nativa: ", "UNIQUE, CHECK e FK travando lixo no banco."),
-            ("Segurança por Papel: ", "Visitante vê só publicados; equipe gerencia."),
-            ("Documentação Fiel: ", "DDL, Dicionário e DER 100% sincronizados."),
-        ],
-        accent_color=C_TEAL,
-        title_size=18,
-        body_size=15,
+    add_text(
+        s2, 0.75, 1.55, 7.6, 0.85,
+        "O Portal Escolar da EEB Prof. Benonívio João Martins já está no ar atendendo alunos, famílias e equipe pedagógica em Palhoça (SC).",
+        size=18.5, bold=True, color=C_NAVY, line_spacing=1.25
     )
 
-    # SLIDE 3 — ANTES VS. DEPOIS
+    add_bullets(
+        s2, 0.75, 2.86, 7.6, 3.85,
+        [
+            ("O que o sistema gerencia: ", "avisos com galerias, turmas, grupos de WhatsApp, links de aula, eventos, documentos oficiais, acervo histórico e cardápio."),
+            ("Motivação da A3: ", "reconstruir o banco de dados de forma estruturada e normalizada (1FN, 2FN e 3FN) para garantir integridade e manter o histórico escolar ano após ano."),
+            ("Portal em produção: ", "escolabenonivio.vercel.app (Next.js + PostgreSQL / Supabase)."),
+            ("Código original: ", "github.com/jefheee/escola-benonivio."),
+        ],
+        size=16, space_after=15, line_spacing=1.25
+    )
+
+    # Coluna direita minimalista com 3 indicadores limpos (sem caixas pesadas)
+    add_rect(s2, 8.85, 1.55, 0.015, 4.95, C_BORDER)
+    metrics = [
+        ("15", "Tabelas normalizadas", "Organizadas em 1FN, 2FN e 3FN"),
+        ("5", "Tipos enumerados", "Valores padronizados no PostgreSQL"),
+        ("2", "Views públicas", "Filtram rascunhos e avisos vencidos"),
+    ]
+    for idx, (num, lbl, sub) in enumerate(metrics):
+        my = 1.65 + idx * 1.68
+        add_text(s2, 9.25, my, 3.3, 0.65, num, size=38, bold=True, color=C_BLUE)
+        add_text(s2, 9.25, my + 0.66, 3.3, 0.34, lbl, size=15.5, bold=True, color=C_NAVY)
+        add_text(s2, 9.25, my + 0.98, 3.3, 0.36, sub, size=13, color=C_MUTED)
+
+    # =========================================================================
+    # SLIDE 3 — O QUE MUDOU (ANTES VS. DEPOIS)
+    # =========================================================================
     s3 = prs.slides.add_slide(blank)
-    add_header(s3, "Antes vs. Depois", "Comparativo estrutural entre o legado em produção e a entrega final", 3)
+    add_content_chrome(s3, "O Que Mudou (Antes vs. Depois)", 3)
 
-    add_table(
-        s3, 0.6, 1.45, 12.13, 4.45,
-        ["Dimensão", "Cenário Legado", "Modelo Final A3 (vFinal)"],
-        [
-            ["Estrutura", "9 tabelas com arrays JSONB", "15 tabelas normalizadas (1FN–3FN)"],
-            ["Domínios", "Textos livres sem validação", "5 ENUMs explícitos no PostgreSQL"],
-            ["Relacionamentos", "Sem política ON DELETE padrão", "13 FKs (CASCADE vs. SET NULL)"],
-            ["Integridade", "Concentrada apenas no frontend", "CHECKs de data, slug, e-mail e texto"],
-            ["Exposição Pública", "Leitura direta sem filtro central", "2 Views (WITH security_invoker = true)"],
-            ["Segurança (RLS)", "Políticas heterogêneas sem controle por papel (role)", "70 políticas granulares por operação"],
-        ],
-        [2.6, 4.4, 5.13],
-        font_size=13.5,
+    add_text(
+        s3, 0.75, 1.48, 11.8, 0.42,
+        "Comparação direta entre a primeira versão do banco em produção e a nova arquitetura da A3.",
+        size=15.5, color=C_MUTED
     )
 
-    add_card(
-        s3, 0.6, 6.15, 12.13, 0.88,
-        bullets=[("Advisors do Supabase: ", "0 alertas de políticas duplicadas e 0 alertas de search_path mutável.")],
-        accent_color=C_NAVY,
-        body_size=14,
-    )
+    rows_s3 = [
+        ("Estrutura", "9 tabelas com listas em JSON", "15 tabelas organizadas (1FN, 2FN e 3FN)"),
+        ("Histórico escolar", "Turmas sobrescritas na virada do ano", "Separação por ano letivo (2025, 2026+)"),
+        ("Dados repetidos", "Turno duplicado em grupos de WhatsApp", "Turno único em escola_turmas (3FN)"),
+        ("Validações", "Regras concentradas apenas no site", "Chaves únicas, datas e textos validados no banco"),
+        ("Controle de acesso", "Leitura pública sem separação por perfil", "Visitante vê publicados; equipe gerencia"),
+    ]
+    tbl_shp = s3.shapes.add_table(len(rows_s3) + 1, 3, Inches(0.75), Inches(2.08), Inches(11.83), Inches(4.45))
+    tbl = tbl_shp.table
+    tbl.columns[0].width = Inches(2.55)
+    tbl.columns[1].width = Inches(4.55)
+    tbl.columns[2].width = Inches(4.73)
 
-    # SLIDE 4 — NORMALIZAÇÃO NA PRÁTICA
+    for c_i, h_txt in enumerate(["Aspecto", "Versão Inicial (Produção)", "Nova Estrutura (A3)"]):
+        style_table_cell(tbl.cell(0, c_i), h_txt, size=15, bold=True, color=C_WHITE, bg=C_NAVY)
+
+    for r_i, (asp, ant, dep) in enumerate(rows_s3, start=1):
+        bg = C_BG_SOFT if r_i % 2 == 0 else C_WHITE
+        style_table_cell(tbl.cell(r_i, 0), asp, size=15, bold=True, color=C_NAVY, bg=bg)
+        style_table_cell(tbl.cell(r_i, 1), ant, size=15, color=C_MUTED, bg=bg)
+        style_table_cell(tbl.cell(r_i, 2), dep, size=15, bold=True, color=C_DARK, bg=bg)
+
+    # =========================================================================
+    # SLIDE 4 — NORMALIZAÇÃO (1FN, 2FN E 3FN) NA PRÁTICA
+    # =========================================================================
     s4 = prs.slides.add_slide(blank)
-    add_header(s4, "Normalização na Prática", "Aplicação objetiva de 1FN, 2FN e 3FN no domínio escolar", 4)
+    add_content_chrome(s4, "Normalização (1FN, 2FN e 3FN) na Prática", 4)
 
-    add_card(
-        s4, 0.6, 1.5, 3.85, 5.3,
-        title="1FN — Atomicidade",
-        bullets=[
-            "Fim dos arrays JSONB.",
-            "3 tabelas filhas: avisos_imagens, acervo_imagens e turmas_links.",
-            "Coluna ordem >= 0 com UNIQUE (pai_id, ordem).",
-        ],
-        accent_color=C_BLUE,
-        title_size=17,
-        body_size=14.5,
-    )
-    add_card(
-        s4, 4.74, 1.5, 3.85, 5.3,
-        title="2FN — Sem Parcialidade",
-        bullets=[
-            "Relação N:N entre eventos e turmas.",
-            "Tabela associativa escola_turmas_eventos.",
-            "PK composta (evento_id, turma_id) sem atributos extras.",
-        ],
-        accent_color=C_TEAL,
-        title_size=17,
-        body_size=14.5,
-    )
-    add_card(
-        s4, 8.88, 1.5, 3.85, 5.3,
-        title="3FN — Sem Transitividade",
-        bullets=[
-            "Removido turno de escola_whatsapp_grupos.",
-            "Turno obtido por JOIN com escola_turmas.",
-            "ano_letivo preserva 2025 e 2026 sem sobrescrita.",
-        ],
-        accent_color=C_AMBER,
-        title_size=17,
-        body_size=14.5,
-    )
+    cols_fn = [
+        (
+            "1FN",
+            "Sem listas dentro de colunas",
+            C_BLUE,
+            "Antes, fotos e links ficavam agrupados em listas JSON dentro da mesma coluna.",
+            "Agora cada foto e cada link tem seu próprio registro ordenado em tabelas ligadas: escola_avisos_imagens, escola_acervo_imagens e escola_turmas_links."
+        ),
+        (
+            "2FN",
+            "Relação muitos-para-muitos",
+            C_TEAL,
+            "Um evento pode envolver várias turmas e uma turma pode participar de vários eventos.",
+            "Criamos a tabela intermediária escola_turmas_eventos com chave composta (evento_id, turma_id), eliminando repetições."
+        ),
+        (
+            "3FN",
+            "Sem dado dependente repetido",
+            C_NAVY,
+            "Antes, o campo turno era cadastrado na turma e repetido no grupo de WhatsApp.",
+            "Removemos turno de escola_whatsapp_grupos: ele pertence apenas a escola_turmas e é consultado via JOIN."
+        ),
+    ]
 
-    # SLIDE 5 — VISÃO GERAL DO DER
+    col_w = 3.62
+    gap = 0.48
+    for idx, (tag, sub, accent, antes_txt, depois_txt) in enumerate(cols_fn):
+        cx = 0.75 + idx * (col_w + gap)
+        add_rect(s4, cx, 1.65, col_w, 0.06, accent)
+        add_text(s4, cx, 1.86, col_w, 0.62, tag, size=32, bold=True, color=accent)
+        add_text(s4, cx, 2.50, col_w, 0.42, sub, size=16.5, bold=True, color=C_NAVY)
+        add_text(s4, cx, 3.08, col_w, 1.25, antes_txt, size=15.5, color=C_MUTED, line_spacing=1.25)
+        add_rect(s4, cx, 4.42, 0.9, 0.02, C_BORDER)
+        add_text(s4, cx, 4.62, col_w, 1.95, depois_txt, size=15.5, bold=False, color=C_DARK, line_spacing=1.25)
+
+    # =========================================================================
+    # SLIDE 5 — DIAGRAMA CONCEITUAL
+    # =========================================================================
     s5 = prs.slides.add_slide(blank)
-    add_header(s5, "Visão Geral do DER", "15 tabelas organizadas em 5 subsistemas funcionais (dbdiagram.io)", 5)
+    add_content_chrome(s5, "Diagrama Conceitual", 5)
 
-    add_card(
-        s5, 0.6, 1.4, 5.85, 5.65,
-        title="5 Subsistemas do Modelo",
-        bullets=[
-            ("Identidade: ", "escola_usuarios (admin e editor)."),
-            ("Turmas: ", "turmas (ano_letivo), links, posts e WhatsApp (1:1)."),
-            ("Mural: ", "avisos, imagens, páginas fixas e alertas."),
-            ("Memória: ", "acervo histórico, imagens e documentos."),
-            ("Calendário: ", "eventos, turmas_eventos (N:N) e refeições."),
+    if IMG_CONCEITUAL.exists():
+        add_fitted_image(s5, IMG_CONCEITUAL, x=0.65, y=1.36, max_w=8.15, max_h=5.45)
+
+    add_rect(s5, 8.95, 1.50, 0.015, 5.20, C_BORDER)
+    add_text(s5, 9.25, 1.55, 3.35, 0.42, "Ligações principais", size=17.5, bold=True, color=C_NAVY)
+    add_bullets(
+        s5, 9.25, 2.10, 3.35, 4.55,
+        [
+            ("1:1 (Turma – WhatsApp): ", "cada turma tem no máximo um grupo oficial."),
+            ("1:N (Composição): ", "avisos e acervo possuem várias imagens; turmas possuem posts e links."),
+            ("N:N (Eventos – Turmas): ", "eventos envolvem várias turmas e vice-versa."),
+            ("0..1:N (Autoria): ", "conteúdos registram o usuário autor de forma opcional."),
         ],
-        accent_color=C_NAVY,
-        title_size=18,
-        body_size=15,
+        size=14.5, space_after=14, line_spacing=1.22
     )
 
-    frame_left, frame_top, frame_w, frame_h = 6.7, 1.4, 6.03, 5.65
-    frame = s5.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(frame_left), Inches(frame_top), Inches(frame_w), Inches(frame_h))
-    frame.adjustments[0] = 0.02
-    frame.fill.solid()
-    frame.fill.fore_color.rgb = C_WHITE
-    frame.line.color.rgb = C_BORDER
-
-    img_der = IMG_DBDIAGRAM if IMG_DBDIAGRAM.exists() else IMG_MERMAID
-    if img_der.exists():
-        with Image.open(img_der) as im:
-            iw, ih = im.size
-        pad = 0.12
-        max_w = frame_w - 2 * pad
-        max_h = frame_h - 2 * pad
-        ratio = min(max_w / iw, max_h / ih)
-        disp_w = iw * ratio
-        disp_h = ih * ratio
-        pic_left = frame_left + (frame_w - disp_w) / 2
-        pic_top = frame_top + (frame_h - disp_h) / 2
-        s5.shapes.add_picture(str(img_der), Inches(pic_left), Inches(pic_top), width=Inches(disp_w), height=Inches(disp_h))
-
-    # SLIDE 6 — INTEGRIDADE E SEGURANÇA NO SGBD
+    # =========================================================================
+    # SLIDE 6 — DIAGRAMA LÓGICO (NOVO COMPACT)
+    # =========================================================================
     s6 = prs.slides.add_slide(blank)
-    add_header(s6, "Integridade e Segurança no SGBD", "Regras declarativas no PostgreSQL 17 que protegem os dados", 6)
+    add_content_chrome(s6, "Diagrama Lógico (15 Tabelas e 13 Chaves Estrangeiras)", 6)
 
-    add_card(
-        s6, 0.6, 1.45, 5.95, 2.6,
-        title="Constraints (CHECK & UNIQUE)",
-        bullets=[
-            "length(btrim(col)) > 0 contra textos vazios.",
-            "Datas coerentes e regex em slug e e-mail.",
-            "Chaves naturais em turma e refeição.",
+    if IMG_LOGICO.exists():
+        add_fitted_image(s6, IMG_LOGICO, x=0.45, y=1.28, max_w=8.65, max_h=5.62)
+
+    add_rect(s6, 9.22, 1.48, 0.015, 5.25, C_BORDER)
+    add_text(s6, 9.50, 1.52, 3.15, 0.40, "5 grupos de tabelas", size=17.5, bold=True, color=C_NAVY)
+    add_bullets(
+        s6, 9.50, 2.05, 3.15, 4.65,
+        [
+            ("Acesso: ", "escola_usuarios."),
+            ("Turmas: ", "turmas, whatsapp_grupos, links e posts."),
+            ("Mural: ", "avisos e avisos_imagens."),
+            ("Memória e Arquivos: ", "acervo, acervo_imagens, documentos e paginas."),
+            ("Agenda e Rotina: ", "eventos, turmas_eventos, refeicoes e notificacoes."),
         ],
-        accent_color=C_BLUE,
-        title_size=16.5,
-        body_size=14,
-    )
-    add_card(
-        s6, 6.8, 1.45, 5.95, 2.6,
-        title="Integridade Referencial & Triggers",
-        bullets=[
-            "ON DELETE CASCADE em itens dependentes.",
-            "ON DELETE SET NULL nas 6 FKs de autoria.",
-            "Trigger única de updated_at com search_path = ''.",
-        ],
-        accent_color=C_TEAL,
-        title_size=16.5,
-        body_size=14,
-    )
-    add_card(
-        s6, 0.6, 4.3, 12.15, 2.6,
-        title="RLS Granular + Views Públicas (security_invoker = true)",
-        bullets=[
-            ("anon: ", "lê apenas publicados, ativos e dentro da vigência."),
-            ("authenticated: ", "escola_is_editor() e escola_is_admin() controlam escrita e papéis."),
-            ("Views: ", "escola_avisos_publicos e escola_eventos_publicos respeitam RLS do invocador."),
-        ],
-        accent_color=C_NAVY,
-        title_size=16.5,
-        body_size=14,
+        size=14, space_after=13, line_spacing=1.22
     )
 
-    # SLIDE 7 — PROVA 1: CRASH TESTS AO VIVO
+    # =========================================================================
+    # SLIDE 7 — REGRAS DE INTEGRIDADE E SEGURANÇA
+    # =========================================================================
     s7 = prs.slides.add_slide(blank)
-    add_header(s7, "Prova 1 — Crash Tests ao Vivo", "6 testes de falha intencional (05_crash_test_integridade.sql)", 7)
+    add_content_chrome(s7, "Regras de Integridade e Segurança", 7)
 
-    add_table(
-        s7, 0.6, 1.45, 12.13, 4.65,
-        ["Teste", "Tentativa Inválida", "SQLSTATE", "Constraint Que Bloqueou"],
-        [
-            ["T1", "Turma duplicada (2026 / 1º Ano / 101 / matutino)", "23505", "uq_turmas_ano_letivo_serie_nome_turno"],
-            ["T2", "2º cardápio no mesmo dia e turno", "23505", "uq_refeicoes_data_turno"],
-            ["T3", "2º grupo de WhatsApp para a mesma turma", "23505", "escola_whatsapp_grupos_turma_id_key"],
-            ["T4", "Evento com data_fim < data_inicio", "23514", "ck_eventos_datas"],
-            ["T5", "E-mail inválido / nome vazio / slug com espaço", "23514", "ck_..._email_valido / nome_check / slug_formato"],
-            ["T6", "Post para turma_id UUID inexistente", "23503", "escola_turmas_posts_turma_id_fkey"],
-        ],
-        [1.1, 5.2, 1.35, 4.48],
-        font_size=12.5,
-    )
+    quads = [
+        (
+            0.75, 1.65, C_BLUE,
+            "Chaves únicas no banco",
+            "Não permite duplicar turma no mesmo ano letivo, série e turno, nem cadastrar dois cardápios para a mesma data e turno."
+        ),
+        (
+            6.95, 1.65, C_TEAL,
+            "Validações automáticas",
+            "Bloqueia textos em branco, e-mails mal formatados, endereços de página inválidos e eventos com data final antes da inicial."
+        ),
+        (
+            0.75, 4.30, C_NAVY,
+            "Regras de exclusão (CASCADE e SET NULL)",
+            "CASCADE remove imagens e links se o item pai for apagado; SET NULL mantém avisos e documentos mesmo se um operador sair."
+        ),
+        (
+            6.95, 4.30, C_BLUE,
+            "Views e controle de acesso",
+            "Visitantes enxergam apenas conteúdos publicados e dentro do prazo; administradores e editores gerenciam os cadastros."
+        ),
+    ]
+    for qx, qy, qcol, qtitle, qdesc in quads:
+        add_rect(s7, qx, qy, 0.07, 2.05, qcol)
+        add_text(s7, qx + 0.28, qy + 0.05, 5.35, 0.45, qtitle, size=18.5, bold=True, color=C_NAVY)
+        add_text(s7, qx + 0.28, qy + 0.60, 5.35, 1.45, qdesc, size=15.5, color=C_DARK, line_spacing=1.28)
 
-    add_card(
-        s7, 0.6, 6.28, 12.13, 0.78,
-        bullets=[("Execução Segura: ", "Todos rodam em BEGIN; ... ROLLBACK; — bloqueiam o erro sem sujar o banco.")],
-        accent_color=C_ROSE,
-        body_size=13.5,
-    )
-
-    # SLIDE 8 — PROVA 2: CONSULTAS SQL AO VIVO
+    # =========================================================================
+    # SLIDE 8 — TESTES DE VALIDAÇÃO NO BANCO
+    # =========================================================================
     s8 = prs.slides.add_slide(blank)
-    add_header(s8, "Prova 2 — Consultas SQL ao Vivo (DQL)", "Consultas analíticas executadas em 06_consultas_apresentacao.sql", 8)
+    add_content_chrome(s8, "Testes de Validação no Banco", 8)
 
-    add_card(
-        s8, 0.6, 1.45, 5.95, 2.55,
-        title="Q1 & Q4 — JOIN 3FN e HAVING",
-        bullets=[
-            ("Q1: ", "Turmas 2026 + WhatsApp ativo + total de links."),
-            ("Q4: ", "GROUP BY + HAVING >= 2 links (4 turmas)."),
-        ],
-        accent_color=C_BLUE,
-        title_size=16.5,
-        body_size=14,
-    )
-    add_card(
-        s8, 6.8, 1.45, 5.95, 2.55,
-        title="Q2 & Q3 — Agregações e N:N",
-        bullets=[
-            ("Q2: ", "COUNT, SUM (MB) e AVG (KB) de documentos."),
-            ("Q3: ", "MIN/MAX de eventos ativos + contagem N:N."),
-        ],
-        accent_color=C_TEAL,
-        title_size=16.5,
-        body_size=14,
-    )
-    add_card(
-        s8, 0.6, 4.28, 5.95, 2.55,
-        title="Q5 & Q6 — LEFT JOIN e NOT EXISTS",
-        bullets=[
-            ("Q5: ", "Todas as 6 turmas com COALESCE(posts, 0)."),
-            ("Q6: ", "Detecta turma 2026-901 sem WhatsApp."),
-        ],
-        accent_color=C_AMBER,
-        title_size=16.5,
-        body_size=14,
-    )
-    add_card(
-        s8, 6.8, 4.28, 5.95, 2.55,
-        title="Q7 & Q8 — Histórico e Views",
-        bullets=[
-            ("Q7: ", "Comparativo 2025 (3 posts) vs. 2026 (6 posts)."),
-            ("Q8: ", "Views filtram avisos (4/6) e eventos (3/5)."),
-        ],
-        accent_color=C_NAVY,
-        title_size=16.5,
-        body_size=14,
+    add_text(
+        s8, 0.75, 1.48, 11.8, 0.42,
+        "Simulamos erros propositais no PostgreSQL para comprovar que as regras funcionam na prática:",
+        size=15.5, color=C_MUTED
     )
 
-    # SLIDE 9 — EVIDÊNCIA DO BANCO POPULADO
+    tests_s8 = [
+        ("1. Duplicar turma", "Inserir a mesma turma no mesmo ano letivo, série e turno", "Bloqueado por chave única"),
+        ("2. Duplicar cardápio", "Cadastrar dois cardápios na mesma data e mesmo turno", "Bloqueado por chave única"),
+        ("3. Segundo WhatsApp", "Vincular um 2º grupo de WhatsApp à mesma turma", "Bloqueado pela relação 1:1"),
+        ("4. Data invertida", "Cadastrar evento com data de término anterior ao início", "Bloqueado por regra CHECK"),
+    ]
+    t8_shp = s8.shapes.add_table(len(tests_s8) + 1, 3, Inches(0.75), Inches(2.08), Inches(11.83), Inches(3.85))
+    t8 = t8_shp.table
+    t8.columns[0].width = Inches(2.75)
+    t8.columns[1].width = Inches(5.78)
+    t8.columns[2].width = Inches(3.30)
+
+    for c_i, h_txt in enumerate(["Teste", "Situação Inválida Simulada", "Resposta do Banco"]):
+        style_table_cell(t8.cell(0, c_i), h_txt, size=15, bold=True, color=C_WHITE, bg=C_NAVY)
+
+    for r_i, (tname, scen, res) in enumerate(tests_s8, start=1):
+        bg = C_BG_SOFT if r_i % 2 == 0 else C_WHITE
+        style_table_cell(t8.cell(r_i, 0), tname, size=15, bold=True, color=C_NAVY, bg=bg)
+        style_table_cell(t8.cell(r_i, 1), scen, size=15, color=C_DARK, bg=bg)
+        style_table_cell(t8.cell(r_i, 2), res, size=15, bold=True, color=C_TEAL, bg=bg)
+
+    add_text(
+        s8, 0.75, 6.18, 11.8, 0.55,
+        "Também testamos e-mail inválido, nome em branco e post para turma inexistente — todos bloqueados automaticamente pelo PostgreSQL.",
+        size=14.5, color=C_MUTED
+    )
+
+    # =========================================================================
+    # SLIDE 9 — DEMONSTRAÇÃO DAS CONSULTAS SQL
+    # =========================================================================
     s9 = prs.slides.add_slide(blank)
-    add_header(s9, "Evidência do Banco Populado", "102 registros realistas distribuídos nas 15 tabelas e Advisors limpos", 9)
+    add_content_chrome(s9, "Demonstração das Consultas SQL", 9)
 
-    add_table(
-        s9, 0.6, 1.45, 7.5, 5.45,
-        ["Tabela", "Qtd", "Tabela", "Qtd"],
-        [
-            ["escola_usuarios", "4", "escola_acervo_imagens", "8"],
-            ["escola_turmas (2025/2026)", "6", "escola_documentos", "6"],
-            ["escola_whatsapp_grupos", "5", "escola_conteudo_paginas", "4"],
-            ["escola_turmas_links", "11", "escola_eventos", "5"],
-            ["escola_turmas_posts", "9", "escola_turmas_eventos", "11"],
-            ["escola_avisos", "6", "escola_refeicoes", "10"],
-            ["escola_avisos_imagens", "10", "escola_notificacoes", "3"],
-            ["escola_acervo", "4", "TOTAL GERAL", "102"],
-        ],
-        [2.85, 0.9, 2.85, 0.9],
-        font_size=12,
+    add_text(
+        s9, 0.75, 1.48, 11.8, 0.42,
+        "Quatro perguntas reais da escola respondidas ao vivo no Supabase com 102 registros de exemplo:",
+        size=15.5, color=C_MUTED
     )
 
-    add_card(
-        s9, 8.35, 1.45, 4.38, 5.45,
-        title="Validação Supabase",
-        bullets=[
-            "0 políticas RLS duplicadas.",
-            "0 funções com search_path mutável.",
-            "Views ocultam rascunhos e arquivados.",
-            "Seed idempotente via CTEs + RETURNING.",
-        ],
-        accent_color=C_TEAL,
-        title_size=17,
-        body_size=14.5,
-    )
+    queries = [
+        (
+            0.75, 2.15, "01",
+            "Turmas de 2026 com WhatsApp e Links",
+            "Une turmas, grupos de WhatsApp e links usando JOIN — mostrando na prática que não precisamos repetir o turno."
+        ),
+        (
+            6.95, 2.15, "02",
+            "Documentos por categoria",
+            "Usa COUNT, SUM e AVG para resumir quantos arquivos existem e quanto espaço ocupam em cada categoria."
+        ),
+        (
+            0.75, 4.45, "03",
+            "Turmas sem grupo de WhatsApp",
+            "Usa LEFT JOIN e NOT EXISTS para encontrar rapidamente a turma 901 que ainda está sem grupo cadastrado."
+        ),
+        (
+            6.95, 4.45, "04",
+            "Histórico 2025 vs. 2026 e Views",
+            "Compara posts entre os dois anos letivos e mostra as Views filtrando automaticamente rascunhos e avisos expirados."
+        ),
+    ]
+    for qx, qy, qnum, qtitle, qdesc in queries:
+        add_text(s9, qx, qy, 0.72, 0.52, qnum, size=24, bold=True, color=C_BLUE)
+        add_text(s9, qx + 0.75, qy + 0.04, 5.10, 0.44, qtitle, size=17.5, bold=True, color=C_NAVY)
+        add_text(s9, qx + 0.75, qy + 0.62, 5.05, 1.30, qdesc, size=15, color=C_DARK, line_spacing=1.25)
 
-    # SLIDE 10 — PRÓXIMOS PASSOS E ENCERRAMENTO
+    # =========================================================================
+    # SLIDE 10 — ENCERRAMENTO (Fundo azul-marinho profundo igual à capa)
+    # =========================================================================
     s10 = prs.slides.add_slide(blank)
-    set_bg(s10, C_NAVY_DARK)
+    set_bg(s10, C_NAVY)
+    add_rect(s10, 0, 0, 13.333, 0.08, C_ACCENT)
 
-    band10 = s10.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(0.28), Inches(7.5))
-    band10.fill.solid()
-    band10.fill.fore_color.rgb = C_TEAL
-    band10.line.fill.background()
-
-    tb10 = s10.shapes.add_textbox(Inches(0.95), Inches(0.85), Inches(11.4), Inches(1.2))
-    tf10 = tb10.text_frame
-    p10 = tf10.paragraphs[0]
-    put_run(p10, "Próximos Passos & Encerramento", size=32, color=C_WHITE, bold=True)
-
-    p10s = tf10.add_paragraph()
-    put_run(p10s, "Da homologação na A3 para a evolução segura em produção", size=15, color=RGBColor(0x94, 0xA3, 0xB8))
-
-    add_card(
-        s10, 0.95, 2.35, 5.5, 3.15,
-        title="Roteiro Pós-A3 (Produção)",
-        bullets=[
-            "Migrar JSONBs legados via ETL controlado.",
-            "Ativar FK de escola_usuarios para auth.users.",
-            "Atualizar queries do Next.js (lib/data/).",
-        ],
-        accent_color=C_BLUE,
-        title_size=17,
-        body_size=14.5,
-    )
-    add_card(
-        s10, 6.85, 2.35, 5.5, 3.15,
-        title="Entregáveis em 04_entrega_final/",
-        bullets=[
-            "Dicionário de Dados (DOCX e PDF).",
-            "Apresentação (PPTX e PDF) + Roteiro.",
-            "DDL, Seed, Crash Tests, DQL e DERs.",
-        ],
-        accent_color=C_TEAL,
-        title_size=17,
-        body_size=14.5,
+    add_text(s10, 0.9, 1.25, 11.5, 0.95, "Obrigado!", size=44, bold=True, color=C_WHITE)
+    add_text(
+        s10, 0.9, 2.28, 11.5, 0.50,
+        "Portal Escolar EEB Prof. Benonívio João Martins  ·  escolabenonivio.vercel.app",
+        size=18.5, color=C_ACCENT
     )
 
-    tbf = s10.shapes.add_textbox(Inches(0.95), Inches(5.95), Inches(11.4), Inches(0.9))
-    tbf.text_frame.word_wrap = True
-    pff = tbf.text_frame.paragraphs[0]
-    pff.alignment = PP_ALIGN.CENTER
-    pff.space_after = Pt(4)
-    put_run(pff, "Obrigado! | Daniel Alves, Gabriel Grando, Jefherson Luiz e Maicon Lodetti", size=15, color=RGBColor(0x93, 0xC5, 0xFD), bold=True)
-    pff2 = tbf.text_frame.add_paragraph()
-    pff2.alignment = PP_ALIGN.CENTER
-    put_run(pff2, "Professores: Fernando Costa Leite e Henrique Pereira Oliveira D'Eça Neves  •  UNISUL 2026", size=13, color=RGBColor(0xCB, 0xD5, 0xE1))
+    add_rect(s10, 0.9, 3.05, 2.2, 0.04, C_ACCENT)
 
-    prs.save(str(OUT_PATH))
-    print("PPTX_SAVED:", OUT_PATH)
+    add_text(s10, 0.9, 3.45, 6.0, 0.32, "EQUIPE", size=10.5, bold=True, color=C_ACCENT)
+    for idx, author in enumerate(AUTHORS_RA):
+        col = idx % 2
+        row = idx // 2
+        ax = 0.9 + col * 5.6
+        ay = 3.88 + row * 0.50
+        add_text(s10, ax, ay, 5.4, 0.40, author, size=16.5, color=C_WHITE)
+
+    add_rect(s10, 0.9, 5.68, 11.5, 0.015, RGBColor(0x28, 0x42, 0x58))
+    add_text(s10, 0.9, 5.92, 11.5, 0.38, PROFESSORES, size=14.5, color=C_LIGHT_MUTED)
+    add_text(
+        s10, 0.9, 6.32, 11.5, 0.34,
+        "UNISUL — Campus Pedra Branca  ·  Análise e Desenvolvimento de Sistemas  ·  Palhoça - SC, 2026",
+        size=12.5, color=C_SOFT_ON_DARK
+    )
+
+    OUT_PPTX.parent.mkdir(parents=True, exist_ok=True)
+    prs.save(str(OUT_PPTX))
+    print("PPTX_SAVED:", OUT_PPTX)
 
 
 if __name__ == "__main__":

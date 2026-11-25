@@ -78,9 +78,10 @@
     #diagram-conceitual g.node g.row-rect-odd path:first-child { fill: #FFFFFF !important; stroke: #CBD5E1 !important; }
     #diagram-conceitual g.node g.row-rect-even path:first-child { fill: #F8FAFC !important; stroke: #CBD5E1 !important; }
     #diagram-conceitual g.node g.label.name foreignObject { overflow: visible !important; }
+    #diagram-conceitual g.node g.label.name foreignObject > div { text-align: center !important; width: 100% !important; }
     #diagram-conceitual g.node g.label.name,
     #diagram-conceitual g.node g.label.name p,
-    #diagram-conceitual g.node g.label.name span { color: #FFFFFF !important; fill: #FFFFFF !important; font-weight: 600 !important; }
+    #diagram-conceitual g.node g.label.name span { color: #FFFFFF !important; fill: #FFFFFF !important; font-weight: 600 !important; font-size: 13.5px !important; letter-spacing: -0.15px !important; }
     #diagram-conceitual g.node g.label.attribute-type,
     #diagram-conceitual g.node g.label.attribute-type p,
     #diagram-conceitual g.node g.label.attribute-name,
@@ -107,7 +108,7 @@
     </div>
     <div id="diagram-conceitual" class="diagram-canvas">
       <div class="mermaid">
-%%{init: {'theme': 'base', 'themeVariables': {'background': '#FFFFFF', 'primaryColor': '#1E3A8A', 'primaryTextColor': '#0F172A', 'primaryBorderColor': '#94A3B8', 'secondaryColor': '#F8FAFC', 'tertiaryColor': '#FFFFFF', 'lineColor': '#334155', 'textColor': '#0F172A', 'edgeLabelBackground': '#FFFFFF', 'fontFamily': 'Segoe UI, sans-serif'}}}%%
+%%{init: {'theme': 'base', 'er': {'minEntityWidth': 170, 'entityPadding': 20}, 'themeVariables': {'background': '#FFFFFF', 'primaryColor': '#1E3A8A', 'primaryTextColor': '#0F172A', 'primaryBorderColor': '#94A3B8', 'secondaryColor': '#F8FAFC', 'tertiaryColor': '#FFFFFF', 'lineColor': '#334155', 'textColor': '#0F172A', 'edgeLabelBackground': '#FFFFFF', 'fontFamily': 'Segoe UI, sans-serif'}}}%%
 erDiagram
     USUARIO {
         chave identificador
@@ -227,7 +228,7 @@ erDiagram
     </div>
     <div id="diagram-logico" class="diagram-canvas">
       <div class="mermaid">
-%%{init: {'theme': 'base', 'themeVariables': {'background': '#FFFFFF', 'primaryColor': '#1E3A8A', 'primaryTextColor': '#0F172A', 'primaryBorderColor': '#94A3B8', 'secondaryColor': '#F8FAFC', 'tertiaryColor': '#FFFFFF', 'lineColor': '#334155', 'textColor': '#0F172A', 'edgeLabelBackground': '#FFFFFF', 'fontFamily': 'Segoe UI, sans-serif'}}}%%
+%%{init: {'theme': 'base', 'er': {'minEntityWidth': 170, 'entityPadding': 20}, 'themeVariables': {'background': '#FFFFFF', 'primaryColor': '#1E3A8A', 'primaryTextColor': '#0F172A', 'primaryBorderColor': '#94A3B8', 'secondaryColor': '#F8FAFC', 'tertiaryColor': '#FFFFFF', 'lineColor': '#334155', 'textColor': '#0F172A', 'edgeLabelBackground': '#FFFFFF', 'fontFamily': 'Segoe UI, sans-serif'}}}%%
 erDiagram
     escola_usuarios {
         uuid id PK
